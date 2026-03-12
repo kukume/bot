@@ -1,0 +1,33 @@
+ktor:
+  deployment:
+    host: "$HOST:0.0.0.0"
+    port: "$PORT:8080"
+  application:
+    modules:
+      - me.kuku.qqbot.ktor.ServerKt.config
+      - me.kuku.qqbot.ktor.ServerKt.declareConfig
+      - me.kuku.qqbot.controller.WebhookControllerKt.hook
+      - me.kuku.qqbot.ktor.ExposedKt.exposed
+qq:
+  subscribe:
+    - me.kuku.qqbot.subscribe.SaveSubscribeKt.save
+    - me.kuku.qqbot.subscribe.OpenaiSubscribeKt.openai
+    - me.kuku.qqbot.subscribe.YgoSubscribeKt.ygo
+    - me.kuku.qqbot.subscribe.ToolSubscribeKt.tool
+    - me.kuku.qqbot.subscribe.TestSubscribeKt.test
+  id: "$QQ_ID:"
+  secret: "$QQ_SECRET:"
+
+openai:
+  baseUrl: "$OPENAI_BASEURL:"
+  model: "$OPENAI_MODEL:"
+  token: "$OPENAI_TOKEN:"
+
+database:
+  driver: "$DATABASE_DRIVER:org.postgresql.Driver"
+  url: "$DATABASE_URL:"
+  user: "$DATABASE_USER:"
+  password: "$DATABASE_PASSWORD:"
+
+rapid:
+  key: "$RAPID_KEY:"

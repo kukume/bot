@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="zh_cn" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>执行酷狗加密</title>
+</head>
+<body>
+<div id="params"></div>
+<div id="pk"></div>
+</body>
+<script th:inline="javascript">
+    [(${script})]
+</script>
+<!--<script src="https://staticssl.kugou.com/common/js/min/login/kguser.v2.min.js?appid=1058"></script>-->
+<script th:inline="javascript">
+    let xx = AES.encrypt(JSON.stringify({mobile: [[${phone}]]}))
+    let key = xx.key
+    document.getElementById("params").innerText = xx.encryptedStr
+    let xxx = RSA.encrypt(JSON.stringify({clienttime_ms:[[${time}]],key: key}))
+    document.getElementById("pk").innerText = xxx
+</script>
+</html>

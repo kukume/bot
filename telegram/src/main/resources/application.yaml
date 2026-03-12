@@ -1,0 +1,30 @@
+ktor:
+  deployment:
+    host: "$HOST:0.0.0.0"
+    port: "$PORT:8080"
+  application:
+    modules:
+      - me.kuku.telegram.ktor.ServerKt.config
+      - me.kuku.telegram.ktor.KoinKt.koin
+      - me.kuku.telegram.ktor.ExposedKt.exposed
+      - me.kuku.telegram.ktor.TelegramBotKt.telegramBot
+      - me.kuku.telegram.ktor.QuartzKt.quartz
+
+database:
+  driver: "$DATABASE_DRIVER:org.postgresql.Driver"
+  url: "$DATABASE_URL:"
+  user: "$DATABASE_USER:"
+  password: "$DATABASE_PASSWORD:"
+
+telegram-bot:
+  token: "$TELEGRAM_TOKEN:"
+  username: "$TELEGRAM_USERNAME:"
+  api: "$TELEGRAM_API:"
+
+openai:
+  baseUrl: "$OPENAI_BASEURL:"
+  model: "$OPENAI_MODEL:"
+  token: "$OPENAI_TOKEN:"
+
+own:
+  daMaGou: "$OWN_DAMAGOU:"

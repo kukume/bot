@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>网易云盾</title>
+</head>
+<body>
+<div id="checkToken"></div>
+</body>
+<script src="https://s3.music.126.net/web/s/core_ddeb5ed1c067b1404662ff69a82ce504.js?ddeb5ed1c067b1404662ff69a82ce504"></script>
+<script src="https://acstatic-dun.126.net/2.7.5_af2952a4/watchman.min.js"></script>
+<script th:inline="javascript">
+    window.addEventListener('load', function() {
+        // 页面及所有资源加载完成后的代码
+        window.WM.getToken("bd5d2f973ef74cd2a61325a412ae54d9", function(e) {
+            document.getElementById('checkToken').innerHTML = e;
+        })
+    });
+</script>
+</html>
