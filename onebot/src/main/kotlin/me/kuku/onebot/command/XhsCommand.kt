@@ -60,7 +60,7 @@ class CheckXhs: ROneBot {
     override fun BotInstance.execute() {
         onEvent<GroupMessageEvent> { event ->
             val jsonNode = event.message.message.find { it.type == SegmentType.json }?.data?.data?.toJsonNode() ?: return@onEvent
-            val url = jsonNode["meta"]["news"]["jumpUrl"]?.asText()
+            val url = jsonNode["meta"]?.get("news")?.get("jumpUrl")?.asText()
                 ?.takeIf { it.contains("www.xiaohongshu.com") || it.contains("xhslink.com") } ?: return@onEvent
             val detail = XhsLogic.detail(url)
             event.reply(buildMessage(detail, event.action.getLoginInfo().userId))

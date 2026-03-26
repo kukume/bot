@@ -1,37 +1,36 @@
 [versions]
-kotlin = "2.3.10"
-ksp = "2.3.4"
-koin = "4.1.1"
-kspKoin = "2.3.1"
+kotlin = "2.3.20"
+ksp = "2.3.6"
+koin = "4.2.0"
+koin-plugin = "0.4.1"
 ktor = "3.4.1"
 exposed = "1.1.1"
 hikari = "7.0.2"
 logback = "1.5.32"
 postgres = "42.7.10"
 quartz = "2.5.2"
-telegramBot = "1.1.1"
-aws = "1.6.34"
+telegramBot = "1.2.0"
+aws = "1.6.44"
 spring = "3.5.7"
 springDependency = "1.1.7"
 zxing = "3.5.4"
 jsoup = "1.22.1"
 playwright = "1.58.0"
-openai = "4.26.0"
-shadow = "8.1.1"
-ronebot = "3.3.4"
+openai = "4.30.0"
+shadow = "9.4.0"
+ronebot = "3.3.5"
 bouncycastle = "1.83"
 openpdf = "3.0.3"
 batik = "1.19"
-genai = "1.42.0"
+genai = "1.44.0"
 okhttp = "5.3.2"
-anthropic = "2.16.1"
+anthropic = "2.18.0"
 jimmer = "0.10.6"
 
 [libraries]
 koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin" }
 koin-ktor = { module = "io.insert-koin:koin-ktor", version.ref = "koin" }
-koin-annotations = { module = "io.insert-koin:koin-annotations", version.ref = "kspKoin" }
-koin-ksp = { module = "io.insert-koin:koin-ksp-compiler", version.ref = "kspKoin" }
+koin-annotations = { module = "io.insert-koin:koin-annotations", version.ref = "koin" }
 
 ktor-server-core = { module = "io.ktor:ktor-server-core", version.ref = "ktor" }
 ktor-server-status-pages = { module = "io.ktor:ktor-server-status-pages", version.ref = "ktor" }
@@ -106,4 +105,5 @@ kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", versi
 ktor = { id = "io.ktor.plugin", version.ref = "ktor" }
 kotlin-spring = { id = "org.jetbrains.kotlin.plugin.spring", version.ref = "spring" }
 spring-dependency = { id = "io.spring.dependency-management", version.ref = "springDependency" }
-shadow = { id = "com.github.johnrengelman.shadow", version.ref = "shadow" }
+shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }
+koin-compiler = { id = "io.insert-koin.compiler.plugin", version.ref = "koin-plugin" }

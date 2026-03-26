@@ -6,9 +6,11 @@ import cn.rtast.rob.command.BaseCommand
 import cn.rtast.rob.event.onEvent
 import cn.rtast.rob.event.packed.GroupMessageErrorEvent
 import me.kuku.onebot.config.ROneBot
+import org.koin.core.annotation.ComponentScan
+import org.koin.core.annotation.KoinApplication
+import org.koin.core.annotation.Module
 import org.koin.core.context.startKoin
 import org.koin.dsl.module
-import org.koin.ksp.generated.defaultModule
 
 suspend fun main() {
     val address = System.getenv("BOT_ADDRESS")
@@ -18,14 +20,12 @@ suspend fun main() {
         it.exception.printStackTrace()
         it.message.reply("exception，异常原因：${it.exception.message}")
     }
-    val koinApplication = startKoin {
+    val koinApplication = startKoin() {
         printLogger()
         module {
             single { botInstance }
         }
-        modules(
-            defaultModule
-        )
+
     }
     val instances = koinApplication.koin.getAll<ROneBot>()
     instances.forEach { instance ->
@@ -39,3 +39,10 @@ suspend fun main() {
     }
 
 }
+
+@Module
+@ComponentScan
+class AppModule
+
+@KoinApplication(modules = [AppModule::class])
+class MyApp

@@ -1,12 +1,12 @@
 plugins {
     alias(libs.plugins.ktor)
+    alias(libs.plugins.koin.compiler)
 }
 
 dependencies {
     implementation(project(":logic"))
     implementation(libs.koin.core)
     compileOnly(libs.koin.annotations)
-    ksp(libs.koin.ksp)
 
     implementation(libs.exposed.core)
     implementation(libs.exposed.jdbc)

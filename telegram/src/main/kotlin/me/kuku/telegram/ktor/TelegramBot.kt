@@ -14,7 +14,6 @@ import io.ktor.client.plugins.*
 import io.ktor.server.application.*
 
 fun Application.telegramBot() {
-    val config = environment.config.config("telegram-bot")
     install(TelegramBot) {
         receiving {
             callbackContentSource = {
@@ -27,7 +26,7 @@ fun Application.telegramBot() {
         }
         client {
             defaultRequest {
-                config.propertyOrNull("api")?.getString()?.takeIf { it.isNotEmpty() }?.let {
+                System.getenv("TELEGRAM_API")?.takeIf { it.isNotEmpty() }?.let {
                     url("$it/bot$token/")
                 }
             }

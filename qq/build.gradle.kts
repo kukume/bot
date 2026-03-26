@@ -1,11 +1,11 @@
 plugins {
+    alias(libs.plugins.koin.compiler)
     alias(libs.plugins.ktor)
 }
 
 dependencies {
     implementation(libs.koin.core)
     compileOnly(libs.koin.annotations)
-    ksp(libs.koin.ksp)
 
     implementation(libs.ktor.server.netty)
     implementation(libs.ktor.server.status.pages)

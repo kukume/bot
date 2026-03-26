@@ -24,7 +24,9 @@ object OpenaiLogic {
 
     private val cache = CacheManager.getCache<String, ChatCompletionCreateParams>("gpt-chat-context", Duration.ofMinutes(2))
 
-    private val client = OpenAIOkHttpClientAsync.fromEnv()
+    private val client = OpenAIOkHttpClientAsync.builder()
+        .fromEnv()
+        .build()
     private val model by lazy { System.getenv("OPENAI_MODEL") }
 
     private fun detectImageTypeFromBase64(base64: String): String? {
