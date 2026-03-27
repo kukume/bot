@@ -9,8 +9,8 @@ import me.kuku.onebot.config.ROneBot
 import org.koin.core.annotation.ComponentScan
 import org.koin.core.annotation.KoinApplication
 import org.koin.core.annotation.Module
-import org.koin.core.context.startKoin
 import org.koin.dsl.module
+import org.koin.plugin.module.dsl.startKoin
 
 suspend fun main() {
     val address = System.getenv("BOT_ADDRESS")
@@ -20,7 +20,7 @@ suspend fun main() {
         it.exception.printStackTrace()
         it.message.reply("exception，异常原因：${it.exception.message}")
     }
-    val koinApplication = startKoin() {
+    val koinApplication = startKoin<MyApp> {
         printLogger()
         module {
             single { botInstance }
