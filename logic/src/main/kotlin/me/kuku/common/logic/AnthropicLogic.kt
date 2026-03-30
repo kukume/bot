@@ -31,8 +31,6 @@ object AnthropicLogic {
             }
         })).build())
 
-        messageCache.add(MessageParam.builder().role(MessageParam.Role.USER).content(text).build())
-
         val messageCreateParams = MessageCreateParams.builder()
             .maxTokens(10000)
             .also { build ->
