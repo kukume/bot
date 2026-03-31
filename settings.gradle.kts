@@ -4,5 +4,8 @@ include("telegram")
 include("logic")
 include("headless")
 
-include("coremail")
 include("onebot")
+
+if (file("coremail").isDirectory) {
+    include("coremail")
+}
