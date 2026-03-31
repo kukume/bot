@@ -14,7 +14,7 @@ fun Subscribe.ygo() {
         handler("ygo") {
             val key = "ygo-${groupOpenid}-${author.memberOpenid}"
 
-            val cards = cache[key]
+            val cards = cache.getIfPresent(key)
             if (cards != null) {
                 val index = arg(1).toIntOrNull()
                 if (index == null || index !in 1..cards.size) {
@@ -22,7 +22,7 @@ fun Subscribe.ygo() {
                     return@handler
                 }
                 val card = cards[index - 1]
-                cache.remove(key)
+                cache.invalidate(key)
                 val groupFileResponse = file(1, card.imageUrl)
                 sendMessage(media = groupFileResponse.fileInfo, msgType = 7, msgSeq = 1)
                 sendMessage("\n中文名：${card.chineseName}\n日文名：${card.japaneseName}\n英文名：${card.englishName}\n效果：\n${card.effect}\n链接：${card.url.replace(".", "点")}", msgSeq = 2)

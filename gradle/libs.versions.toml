@@ -26,6 +26,7 @@ genai = "1.44.0"
 okhttp = "5.3.2"
 anthropic = "2.18.0"
 jimmer = "0.10.6"
+caffeine = "3.2.2"
 
 [libraries]
 koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin" }
@@ -97,6 +98,7 @@ jimmer-core = { module = "org.babyfish.jimmer:jimmer-core-kotlin", version.ref="
 jimmer-ksp = { module = "org.babyfish.jimmer:jimmer-ksp", version.ref="jimmer" }
 jimmer-sql = { module = "org.babyfish.jimmer:jimmer-sql", version.ref="jimmer" }
 jimmer-sql-kotlin = { module = "org.babyfish.jimmer:jimmer-sql-kotlin", version.ref="jimmer" }
+caffeine = { module = "com.github.ben-manes.caffeine:caffeine", version.ref = "caffeine" }
 
 [plugins]
 kotlin = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }

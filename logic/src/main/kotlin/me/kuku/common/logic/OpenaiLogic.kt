@@ -7,8 +7,8 @@ import com.openai.models.chat.completions.ChatCompletionContentPartImage
 import com.openai.models.chat.completions.ChatCompletionContentPartText
 import com.openai.models.chat.completions.ChatCompletionCreateParams
 import com.openai.models.chat.completions.ChatCompletionUserMessageParam
+import com.github.benmanes.caffeine.cache.Cache
 import kotlinx.coroutines.future.await
-import me.kuku.common.utils.Cache
 import me.kuku.common.utils.CacheManager
 import java.time.Duration
 import java.util.Base64
@@ -46,7 +46,7 @@ object OpenaiLogic {
 
     fun build(key: String, text: String, photoList: List<String>, systemMessage: String? = null): OpenaiPojo {
 
-        var cacheBody = cache[key]
+        var cacheBody = cache.getIfPresent(key)
 
         val fileList = mutableListOf<ChatCompletionContentPart>()
 
@@ -74,7 +74,7 @@ object OpenaiLogic {
         val cacheBody = pojo.cacheBody
         val chatCompletion = client.chat().completions().create(pojo.chatCompletionCreateParams).await()
         val openaiText = chatCompletion.choices()[0].message().content().orElse("")
-        cache[key] = cacheBody.toBuilder().addAssistantMessage(openaiText).build()
+        cache.put(key, cacheBody.toBuilder().addAssistantMessage(openaiText).build())
         val usage = chatCompletion.usage().orElseThrow()
         val model = chatCompletion.model()
         val prefix = "model: $model\npromptToken: ${usage.promptTokens()}\ncompletionToken: ${usage.completionTokens()}\n"

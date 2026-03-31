@@ -33,7 +33,7 @@ object ToolLogic {
     private const val FISH_KEY = "fishing"
 
     suspend fun fishing(): String {
-        val cacheUrl = fishCache[FISH_KEY]
+        val cacheUrl = fishCache.getIfPresent(FISH_KEY)
         if (cacheUrl != null) return cacheUrl
         val jsonNode = client.get("https://mp.weixin.qq.com/mp/appmsgalbum?action=getalbum&__biz=MzAxOTYyMzczNA%3D%3D&album_id=3743225907507462153&count=10&begin_msgid&begin_itemidx&uin&key&pass_ticket&wxtoken&devicetype&clientversion&__biz=MzAxOTYyMzczNA%3D%3D&appmsg_token&x5=0&f=json")
             .body<JsonNode>()
@@ -54,7 +54,7 @@ object ToolLogic {
             if (element.hasAttr("data-src")) filterElement.add(element)
         }
         val imageUrl = filterElement.find { it.attr("data-w") == "540" }?.attr("data-src") ?: error("not found fishing image")
-        fishCache[FISH_KEY] = imageUrl
+        fishCache.put(FISH_KEY, imageUrl)
         return imageUrl
     }
 

@@ -21,7 +21,7 @@ object AnthropicLogic {
     private val client = AnthropicOkHttpClient.fromEnv()
 
     fun claude(key: String, text: String, photoList: List<String>, systemMessage: String? = null): String {
-        val messageCache = cache[key] ?: mutableListOf<MessageParam>().also { cache[key] = it }
+        val messageCache = cache.getIfPresent(key) ?: mutableListOf<MessageParam>().also { cache.put(key, it) }
 
         messageCache.add(MessageParam.builder().role(MessageParam.Role.USER).content(MessageParam.Content.ofBlockParams(mutableListOf(
             ContentBlockParam.ofText(TextBlockParam.builder().text(text).build())

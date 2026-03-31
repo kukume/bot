@@ -5,6 +5,7 @@ plugins {
 }
 
 dependencies {
+    api(libs.caffeine)
     api(libs.ktor.client.core)
     api(libs.ktor.client.okhttp)
     api(libs.ktor.client.content.negotiation)

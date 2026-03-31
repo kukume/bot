@@ -33,12 +33,12 @@ object GeminiLogic {
     }
 
     suspend fun gemini(key: String, text: String, photoList: List<String>, systemMessage: String? = null): AiResponse {
-        var geminiCache = cache[key]
+        var geminiCache = cache.getIfPresent(key)
         if (geminiCache == null) {
             val client = Client.builder().apiKey(this.key).build()
             val chat = client.async.chats.create(model)
             geminiCache = GeminiCache(client, chat)
-            cache[key] = geminiCache
+            cache.put(key, geminiCache)
         }
         val chat = geminiCache.chat
         val partList = mutableListOf<Part>()
