@@ -2,6 +2,7 @@
 kotlin = "2.3.20"
 ksp = "2.3.6"
 koin = "4.2.0"
+koin-old = "4.1.1"
 koin-plugin = "0.4.1"
 kspKoin = "2.3.1"
 ktor = "3.4.2"
@@ -31,6 +32,7 @@ caffeine = "3.2.3"
 
 [libraries]
 koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin" }
+koin-core-old = { module = "io.insert-koin:koin-core", version.ref = "koin-old" }
 koin-ktor = { module = "io.insert-koin:koin-ktor", version.ref = "koin" }
 koin-annotations = { module = "io.insert-koin:koin-annotations", version.ref = "koin" }
 koin-annotations-old = { module = "io.insert-koin:koin-annotations", version.ref = "kspKoin" }

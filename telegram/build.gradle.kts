@@ -4,7 +4,7 @@ plugins {
 
 dependencies {
     implementation(project(":logic"))
-    implementation(libs.koin.core)
+    implementation(libs.koin.core.old)
     compileOnly(libs.koin.annotations.old)
     ksp(libs.koin.ksp)
 
