@@ -3,6 +3,7 @@ package me.kuku.telegram.ktor
 import io.ktor.server.application.*
 import me.kuku.common.entity.*
 import me.kuku.common.ktor.plugins.Exposed
+import me.kuku.telegram.handler.MessageTokenTable
 import org.jetbrains.exposed.v1.jdbc.SchemaUtils
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 
@@ -29,7 +30,8 @@ fun Application.exposed() {
             SignLogTable,
             UserConfigTable,
             IdentityTable,
-            NodeLocTable
+            NodeLocTable,
+            MessageTokenTable
         )
     }
 

@@ -5,6 +5,7 @@ ktor:
   application:
     modules:
       - me.kuku.telegram.ktor.ServerKt.config
+      - me.kuku.telegram.handler.MessageTokenHandlerKt.messageTokenApi
       - me.kuku.telegram.ktor.KoinKt.koin
       - me.kuku.telegram.ktor.ExposedKt.exposed
       - me.kuku.telegram.ktor.TelegramBotKt.telegramBot
