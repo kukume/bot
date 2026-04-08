@@ -15,12 +15,11 @@ import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.transactions.suspendTransaction
 import org.jetbrains.exposed.v1.jdbc.update
 import org.koin.core.annotation.Factory
-import org.koin.mp.KoinPlatform.getKoin
 
 @Factory
-class UserConfigHandler: BotHandler({
-
-    val buttonFactory = getKoin().get<ButtonFactory>()
+class UserConfigHandler(
+    private val buttonFactory: ButtonFactory
+): BotHandler({
 
     val configList = listOf(
         UserConfigButton("epic免费游戏推送", UserConfigTable.epicFreeGamePush),

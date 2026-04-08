@@ -1,12 +1,12 @@
 plugins {
     alias(libs.plugins.ktor)
+    alias(libs.plugins.koin.compiler)
 }
 
 dependencies {
     implementation(project(":logic"))
-    implementation(libs.koin.core.old)
-    compileOnly(libs.koin.annotations.old)
-    ksp(libs.koin.ksp)
+    implementation(libs.koin.core)
+    compileOnly(libs.koin.annotations)
 
     implementation(libs.exposed.core)
     implementation(libs.exposed.jdbc)
@@ -44,6 +44,6 @@ application {
     mainClass.set("me.kuku.telegram.TelegramApplicationKt")
 }
 
-ksp {
-    arg("KOIN_DEFAULT_MODULE", "true")
+koinCompiler {
+    compileSafety = false
 }

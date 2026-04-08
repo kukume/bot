@@ -20,7 +20,9 @@ import org.jetbrains.exposed.v1.dao.IntEntity
 import org.jetbrains.exposed.v1.dao.IntEntityClass
 import org.jetbrains.exposed.v1.jdbc.transactions.suspendTransaction
 import org.koin.core.annotation.Factory
+import org.koin.java.KoinJavaComponent.inject
 import org.koin.ktor.ext.getKoin
+import org.koin.ktor.ext.inject
 import org.koin.mp.KoinPlatform.getKoin
 import java.util.UUID
 
@@ -116,6 +118,7 @@ class MessageTokenHandler : BotHandler({
 })
 
 fun Application.messageTokenApi() {
+    val telegramBot  by inject<TelegramBot>()
     routing {
         post("/send-message") {
             val body = call.receive<MessageTokenRequest>()
@@ -124,7 +127,7 @@ fun Application.messageTokenApi() {
             val entity = suspendTransaction {
                 MessageTokenEntity.find { MessageTokenTable.token eq body.token }.firstOrNull()
             } ?: return@post call.respond(HttpStatusCode.NotFound, MessageTokenResponse(success = false))
-            getKoin().get<TelegramBot>().sendMessage(entity.chatId, "#自定义消息提醒\n${body.text}")
+            telegramBot.sendMessage(entity.chatId, "#自定义消息提醒\n${body.text}")
             call.respond(HttpStatusCode.OK, MessageTokenResponse(success = true))
         }
     }

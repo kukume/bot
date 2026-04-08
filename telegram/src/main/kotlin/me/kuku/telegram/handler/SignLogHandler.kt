@@ -23,9 +23,9 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 @Factory
-class SignLogHandler: BotHandler({
-
-    val buttonFactory by getKoin().inject<ButtonFactory>()
+class SignLogHandler(
+    private val buttonFactory: ButtonFactory
+): BotHandler({
 
     data class SignTransfer(val date: LocalDate, val id: Int)
 

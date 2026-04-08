@@ -16,7 +16,7 @@ import me.kuku.common.utils.toUrlEncode
 
 object NodeSeekLogic {
 
-    private const val api = "https://api.jpa.cc"
+    private const val api = "https://api.kuku.pp.ua"
 
     suspend fun sign(entity: NodeSeekEntity, random: Boolean = false) {
         client.get("$api/nodeseek/sign?cookie=${entity.cookie.toUrlEncode()}&random=$random")

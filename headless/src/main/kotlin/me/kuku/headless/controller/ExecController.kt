@@ -17,6 +17,8 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.time.Duration
 import java.util.UUID
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 
 private val mutex = Mutex()
 
@@ -78,13 +80,13 @@ fun Application.exec() {
                 try {
                     withContext(Dispatchers.IO) {
                         page.navigate("http://localhost:$port/exec/douYin?url=${url.encodeURLParameter()}")
-                        withTimeout(1000 * 30) {
+                        withTimeout(30.seconds) {
                             while (true) {
                                 if (data != null && userAgent != null) {
                                     call.respond(mapOf("url" to data, "userAgent" to userAgent))
                                     break
                                 }
-                                delay(1000)
+                                delay(1.seconds)
                             }
                         }
                     }
@@ -128,7 +130,7 @@ fun Application.exec() {
                                 if (i++ > 30) error("check token api timeout")
                                 val token = page.evaluate("""document.getElementById('checkToken').innerHTML""").toString()
                                 if (token.isEmpty()) {
-                                    delay(500)
+                                    delay(500.milliseconds)
                                     continue
                                 }
                                 call.respond(mapOf("checkToken" to token))
