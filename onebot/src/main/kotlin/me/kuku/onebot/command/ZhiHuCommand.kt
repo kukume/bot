@@ -9,9 +9,9 @@ import cn.rtast.rob.event.packed.GroupMessageEvent
 import cn.rtast.rob.event.raw.message.GroupMessage
 import cn.rtast.rob.onebot.dsl.image
 import cn.rtast.rob.onebot.dsl.messageChain
-import io.ktor.client.request.get
+import io.ktor.client.request.forms.submitForm
 import io.ktor.client.statement.bodyAsBytes
-import io.ktor.http.encodeURLParameter
+import io.ktor.http.parameters
 import me.kuku.common.ktor.client
 import me.kuku.common.utils.toJsonNode
 import me.kuku.onebot.config.ROneBot
@@ -36,8 +36,29 @@ class ZhiHuCommand: BaseCommand() {
     }
 }
 
+@Single
+class NsCommand: BaseCommand() {
+    override val commandNames = listOf("ns")
+
+    override suspend fun executeGroup(
+        message: GroupMessage,
+        args: List<String>
+    ) {
+        val all = args.joinToString(" ")
+        val regex = """https://www\.nodeseek\.com/post-\d+-1""".toRegex()
+        val url = regex.find(all)?.value ?: return
+        val ba = zhiHuPic(url)
+        message.reply(messageChain {
+            image(ba.toResource())
+        })
+    }
+}
+
 private suspend fun zhiHuPic(url: String): ByteArray {
-    return client.get("http://localhost:38127/render?url=${url.encodeURLParameter()}").bodyAsBytes()
+    return client.submitForm(
+        url = "http://localhost:38127/render",
+        parameters { append("url", url) }
+    ).bodyAsBytes()
 }
 
 @Single
