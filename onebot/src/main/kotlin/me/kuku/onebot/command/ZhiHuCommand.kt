@@ -54,7 +54,25 @@ class NsCommand: BaseCommand() {
     }
 }
 
-private suspend fun zhiHuPic(url: String): ByteArray {
+@Single
+class LinuxDoCommand: BaseCommand() {
+    override val commandNames = listOf("ld")
+
+    override suspend fun executeGroup(
+        message: GroupMessage,
+        args: List<String>
+    ) {
+        val all = args.joinToString(" ")
+        val regex = """https://linux\.do/t/topic/\d+""".toRegex()
+        val url = regex.find(all)?.value ?: return
+        val ba = zhiHuPic(url)
+        message.reply(messageChain {
+            image(ba.toResource())
+        })
+    }
+}
+
+suspend fun zhiHuPic(url: String): ByteArray {
     return client.submitForm(
         url = "http://localhost:38127/render",
         parameters { append("url", url) }

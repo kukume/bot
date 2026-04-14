@@ -30,6 +30,10 @@ class XhsCommand: BaseCommand() {
         val url = args[0]
         val detail = XhsLogic.detail(url)
         message.reply(buildMessage(detail, message.action.getLoginInfo().userId))
+        val ba = zhiHuPic(args[0])
+        message.reply(messageChain {
+            image(ba.toResource())
+        })
     }
 }
 
@@ -64,6 +68,10 @@ class CheckXhs: ROneBot {
                 ?.takeIf { it.contains("www.xiaohongshu.com") || it.contains("xhslink.com") } ?: return@onEvent
             val detail = XhsLogic.detail(url)
             event.reply(buildMessage(detail, event.action.getLoginInfo().userId))
+            val ba = zhiHuPic(url)
+            event.reply(messageChain {
+                image(ba.toResource())
+            })
         }
     }
 }
