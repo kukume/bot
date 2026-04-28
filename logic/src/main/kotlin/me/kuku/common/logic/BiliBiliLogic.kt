@@ -209,12 +209,14 @@ object BiliBiliLogic {
             error("错误：${response.status}")
         } else {
             val html = response.bodyAsText()
-            val jsonNode = RegexUtils.extract(html, "window.__playinfo__=", "</sc")?.toJsonNode() ?: error("未获取到内容")
+            val setCookie = response.setCookie()
+            val vid3 = setCookie.find { it.name == "buvid3" }?.value
             val stateJsonNode = RegexUtils.extract(html, "window.__INITIAL_STATE__=", ";\\(")?.toJsonNode() ?: error("未获取到内容")
             val aid = stateJsonNode["aid"].asText()
             val bvId = stateJsonNode["bvid"].asText()
             val cid = stateJsonNode["cid"].asText()
-            val session = jsonNode["session"].asText()
+            val t = System.currentTimeMillis() / 1000
+            val session = (vid3 + t).md5()
             val videoData = stateJsonNode["videoData"]
             val title = videoData["title"].asText()
             val desc = videoData["desc"].asText()
@@ -224,7 +226,7 @@ object BiliBiliLogic {
             val face = videoData["owner"]["face"].asText()
             val matchPath = Path.of("tmp", "${bvId}output.mp4")
             if (matchPath.exists()) return BiliBiliVideo(title, desc, pic, ownerName, ownerMid, face, matchPath.toFile())
-            val urlParams = Wbi.enc("avid=$aid&bvid=$bvId&cid=$cid&qn=80&fnver=0&fnval=4048&fourk=1&gaia_source&from_client=BROWSER&is_main_page=true&need_fragment=false&isGaiaAvoided=false&session=$session&try_look=1&web_location=1315873")
+            val urlParams = Wbi.enc("avid=$aid&bvid=$bvId&cid=$cid&qn=80&fnver=0&fnval=4048&fourk=1&gaia_source&from_client=BROWSER&is_main_page=true&need_fragment=false&isGaiaAvoided=false&session=$session&try_look=1&web_location=1315873&wts=$t")
             val videoJsonNode = client.get("https://api.bilibili.com/x/player/wbi/playurl?$urlParams") {
                 userAgent("Reqable/2.30.3")
             }.body<JsonNode>()
@@ -741,7 +743,7 @@ object Wbi {
             n.append(r[it])
         }
         val s = n.substring(0, 32)
-        val u = System.currentTimeMillis() / 1000
+        val u = params["wts"]?.toString()?.toLong() ?: (System.currentTimeMillis() / 1000)
         val mutableMap = params.toMutableMap()
         mutableMap["wts"] = u
         val sortedMap = mutableMap.toSortedMap()
