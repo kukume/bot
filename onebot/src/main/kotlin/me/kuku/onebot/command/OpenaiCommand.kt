@@ -1,6 +1,11 @@
 package me.kuku.onebot.command
 
 import cn.rtast.rob.BotInstance
+import cn.rtast.rob.command.BaseCommand
+import cn.rtast.rob.entity.toResource
+import cn.rtast.rob.event.raw.message.GroupMessage
+import cn.rtast.rob.onebot.dsl.image
+import cn.rtast.rob.onebot.dsl.messageChain
 import cn.rtast.rob.enums.SegmentType
 import cn.rtast.rob.event.onEvent
 import cn.rtast.rob.event.packed.GroupMessageEvent
@@ -9,12 +14,15 @@ import cn.rtast.rob.event.raw.message.text
 import io.ktor.client.request.get
 import io.ktor.client.statement.bodyAsBytes
 import io.ktor.util.encodeBase64
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import me.kuku.common.ktor.client
 import me.kuku.common.logic.AnthropicLogic
 import me.kuku.common.logic.GeminiLogic
 import me.kuku.common.logic.OpenaiLogic
 import me.kuku.onebot.config.ROneBot
 import org.koin.core.annotation.Single
+import java.util.Base64
 
 @Single
 class OpenAiCommand: ROneBot {
@@ -113,5 +121,31 @@ class OpenAiCommand: ROneBot {
                 .replace("圣上", "sheng上")
             event.reply(cleanedText)
         }
+    }
+}
+
+@Single
+class ImageCommand: BaseCommand() {
+    override val commandNames = listOf("image")
+
+    private val mutex = Mutex()
+
+    override suspend fun executeGroup(
+        message: GroupMessage,
+        args: List<String>
+    ) = mutex.withLock {
+        val prompt = args.joinToString(" ")
+        if (prompt.isBlank()) return@withLock
+        message.reply("生成图片中")
+        val imageResult = OpenaiLogic.image(prompt)
+        val base64 = imageResult.b64Json().orElse(null)
+        if (base64 == null) {
+            message.reply("生成图片失败")
+            return@withLock
+        }
+        val ba = Base64.getDecoder().decode(base64)
+        message.reply(messageChain {
+            image(ba.toResource())
+        })
     }
 }

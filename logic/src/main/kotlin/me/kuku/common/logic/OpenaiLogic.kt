@@ -7,6 +7,8 @@ import com.openai.models.chat.completions.ChatCompletionContentPartImage
 import com.openai.models.chat.completions.ChatCompletionContentPartText
 import com.openai.models.chat.completions.ChatCompletionCreateParams
 import com.openai.models.chat.completions.ChatCompletionUserMessageParam
+import com.openai.models.images.Image
+import com.openai.models.images.ImageGenerateParams
 import com.github.benmanes.caffeine.cache.Cache
 import kotlinx.coroutines.future.await
 import me.kuku.common.utils.CacheManager
@@ -79,6 +81,15 @@ object OpenaiLogic {
         val model = chatCompletion.model()
         val prefix = "model: $model\npromptToken: ${usage.promptTokens()}\ncompletionToken: ${usage.completionTokens()}\n"
         return "$prefix\n$openaiText"
+    }
+
+    suspend fun image(prompt: String, model: String = System.getenv("OPENAI_IMAGE_MODEL") ?: "gpt-image-2"): Image {
+        val params = ImageGenerateParams.builder()
+            .prompt(prompt)
+            .model(model)
+            .build()
+        val response = client.images().generate(params).await()
+        return response.data().orElseThrow().first()
     }
 
 }
