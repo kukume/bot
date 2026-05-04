@@ -133,19 +133,30 @@ class ImageCommand: BaseCommand() {
     override suspend fun executeGroup(
         message: GroupMessage,
         args: List<String>
-    ) = mutex.withLock {
+    ) {
         val prompt = args.joinToString(" ")
-        if (prompt.isBlank()) return@withLock
-        message.reply("生成图片中")
-        val imageResult = OpenaiLogic.image(prompt)
-        val base64 = imageResult.b64Json().orElse(null)
-        if (base64 == null) {
-            message.reply("生成图片失败")
-            return@withLock
+        if (prompt.isBlank()) return
+        val imageList = message.images
+        if (imageList.size > 1) {
+            message.reply("一次只能处理一张图片")
+            return
         }
-        val ba = Base64.getDecoder().decode(base64)
-        message.reply(messageChain {
-            image(ba.toResource())
-        })
+        mutex.withLock {
+            message.reply("生成图片中")
+            val imageResult = if (imageList.size == 1) {
+                OpenaiLogic.image(prompt, client.get(imageList.first().url).bodyAsBytes())
+            } else {
+                OpenaiLogic.image(prompt)
+            }
+            val base64 = imageResult.b64Json().orElse(null)
+            if (base64 == null) {
+                message.reply("生成图片失败")
+                return@withLock
+            }
+            val ba = Base64.getDecoder().decode(base64)
+            message.reply(messageChain {
+                image(ba.toResource())
+            })
+        }
     }
 }

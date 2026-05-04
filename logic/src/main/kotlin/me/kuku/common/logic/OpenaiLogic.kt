@@ -2,16 +2,19 @@ package me.kuku.common.logic
 
 import com.openai.client.OpenAIClientAsync
 import com.openai.client.okhttp.OpenAIOkHttpClientAsync
+import com.openai.core.MultipartField
 import com.openai.models.chat.completions.ChatCompletionContentPart
 import com.openai.models.chat.completions.ChatCompletionContentPartImage
 import com.openai.models.chat.completions.ChatCompletionContentPartText
 import com.openai.models.chat.completions.ChatCompletionCreateParams
 import com.openai.models.chat.completions.ChatCompletionUserMessageParam
 import com.openai.models.images.Image
+import com.openai.models.images.ImageEditParams
 import com.openai.models.images.ImageGenerateParams
 import com.github.benmanes.caffeine.cache.Cache
 import kotlinx.coroutines.future.await
 import me.kuku.common.utils.CacheManager
+import java.io.ByteArrayInputStream
 import java.time.Duration
 import java.util.Base64
 
@@ -35,6 +38,18 @@ object OpenaiLogic {
         val pureBase64 = base64.substringAfter(",")
         val bytes = Base64.getDecoder().decode(pureBase64)
 
+        return when {
+            bytes[0] == 0xFF.toByte() && bytes[1] == 0xD8.toByte() -> "jpg"
+            bytes[0] == 0x89.toByte() && bytes[1] == 0x50.toByte() -> "png"
+            bytes[0] == 0x47.toByte() && bytes[1] == 0x49.toByte() -> "gif"
+            bytes[0] == 0x42.toByte() && bytes[1] == 0x4D.toByte() -> "bmp"
+            String(bytes.copyOfRange(0, 4)) == "RIFF" &&
+                    String(bytes.copyOfRange(8, 12)) == "WEBP" -> "webp"
+            else -> null
+        }
+    }
+
+    private fun detectImageTypeFromBytes(bytes: ByteArray): String? {
         return when {
             bytes[0] == 0xFF.toByte() && bytes[1] == 0xD8.toByte() -> "jpg"
             bytes[0] == 0x89.toByte() && bytes[1] == 0x50.toByte() -> "png"
@@ -89,6 +104,23 @@ object OpenaiLogic {
             .model(model)
             .build()
         val response = client.images().generate(params).await()
+        return response.data().orElseThrow().first()
+    }
+
+    suspend fun image(prompt: String, image: ByteArray, model: String = System.getenv("OPENAI_IMAGE_MODEL") ?: "gpt-image-2"): Image {
+        val imageType = detectImageTypeFromBytes(image) ?: "png"
+        val contentType = if (imageType == "jpg") "image/jpeg" else "image/$imageType"
+        val imageField = MultipartField.builder<ImageEditParams.Image>()
+            .value(ImageEditParams.Image.ofInputStream(ByteArrayInputStream(image)))
+            .filename("image.$imageType")
+            .contentType(contentType)
+            .build()
+        val params = ImageEditParams.builder()
+            .prompt(prompt)
+            .image(imageField)
+            .model(model)
+            .build()
+        val response = client.images().edit(params).await()
         return response.data().orElseThrow().first()
     }
 
