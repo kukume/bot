@@ -33,7 +33,7 @@ object EpicLogic {
                 val title = element["title"].asText()
                 val imageUrl = element["keyImages"][0]["url"].asText()
                 val slug = element["productSlug"].takeIf { it !is NullNode }?.asText() ?: element["catalogNs"]["mappings"][0]["pageSlug"].asText()
-                val html = client.get("https://store.epicgames.com/zh-CN/p/$slug") {
+                val html = client.get("https://store.epicgames.com/p/$slug?lang=zh-CN") {
                     userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36")
                     cookieString("EPIC_LOCALE_COOKIE=zh-CN; _epicSID=c9a415ce4e6c4f1fa3da0cb465a1679f;")
                     referer("https://store.epicgames.com/zh-CN/")
@@ -47,6 +47,7 @@ object EpicLogic {
                     val fmtPrice = catalogOffer["price"]["totalPrice"]["fmtPrice"]
                     val originalPrice = fmtPrice["originalPrice"].asText()
                     val discountPrice = fmtPrice["discountPrice"].asText()
+                    if (originalPrice == "0") continue
                     if (discountPrice != "0") continue
                     val namespace = catalogOffer["namespace"].asText()
                     val id = catalogOffer["id"].asText()

@@ -11,6 +11,7 @@ dependencies {
     api(libs.ktor.client.content.negotiation)
     api(libs.ktor.client.logging)
     api(libs.ktor.serialization.jackson)
+    api(libs.jackson.datatype.jsr310)
 
     compileOnly(libs.ktor.server.core)
 
