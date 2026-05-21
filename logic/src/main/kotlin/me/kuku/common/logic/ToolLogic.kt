@@ -87,11 +87,17 @@ object ToolLogic {
     }
 
     suspend fun dy(param: String): File {
-        val urlArg = "https://v.douyin.com/[A-Za-z0-9_-]*/".toRegex().find(param)?.groupValues?.get(0) ?: error("not found douyin url")
+        val urlArg = "https://v.douyin.com/[A-Za-z0-9_-]*/".toRegex().find(param)?.groupValues?.get(0) ?: error("未找到抖音链接")
         val locationResponse = client.get(urlArg) {
             userAgent("Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1")
         }
         val htmlUrl = locationResponse.headers["Location"] ?: error("获取抖音视频失败")
+
+        // 笔记直接抛异常
+        if (htmlUrl.contains("/note/")) {
+            error("发的链接是笔记，无法下载视频")
+        }
+
         val html = client.get(htmlUrl) {
             userAgent("Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1")
         }.bodyAsText()
