@@ -1,0 +1,132 @@
+name: Build and Push Docker Images
+
+on:
+  push:
+    branches: [master, main]
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # ==================== headless ====================
+      - name: Extract metadata for headless
+        id: meta-headless
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=raw,value=headless
+
+      - name: Build and push headless
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          target: headless
+          push: true
+          platforms: linux/amd64,linux/arm64
+          tags: ${{ steps.meta-headless.outputs.tags }}
+          labels: ${{ steps.meta-headless.outputs.labels }}
+          provenance: false
+          sbom: false
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      # ==================== onebot ====================
+      - name: Extract metadata for onebot
+        id: meta-onebot
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=raw,value=onebot
+
+      - name: Build and push onebot
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          target: onebot
+          push: true
+          platforms: linux/amd64,linux/arm64
+          tags: ${{ steps.meta-onebot.outputs.tags }}
+          labels: ${{ steps.meta-onebot.outputs.labels }}
+          provenance: false
+          sbom: false
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      # ==================== qq ====================
+      - name: Extract metadata for qq
+        id: meta-qq
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=raw,value=qq
+
+      - name: Build and push qq
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          target: qq
+          push: true
+          platforms: linux/amd64,linux/arm64
+          tags: ${{ steps.meta-qq.outputs.tags }}
+          labels: ${{ steps.meta-qq.outputs.labels }}
+          provenance: false
+          sbom: false
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      # ==================== telegram ====================
+      - name: Extract metadata for telegram
+        id: meta-telegram
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=raw,value=telegram
+
+      - name: Build and push telegram
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          target: telegram
+          push: true
+          platforms: linux/amd64,linux/arm64
+          tags: ${{ steps.meta-telegram.outputs.tags }}
+          labels: ${{ steps.meta-telegram.outputs.labels }}
+          provenance: false
+          sbom: false
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
