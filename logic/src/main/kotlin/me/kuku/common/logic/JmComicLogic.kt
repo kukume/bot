@@ -16,7 +16,7 @@ object JmComicLogic {
 
     fun id(id: String): List<Path> {
         val home = System.getProperty("user.home")
-        command("""~/.local/bin/jmcomic $id --option="$home/jmcomic/config.yml"""")
+        command("""~/.local/bin/jmcomic $id --option="$home/jmcomic/jmcomic.yml"""")
         val name = id.filter { it.isDigit() }
         val path = Path("$home/jmcomic/$name")
         if (!path.exists()) error("can't find jm $id")

@@ -13,8 +13,10 @@ import java.time.LocalDateTime
 
 object XhsLogic {
 
+    private val xhsUrl = System.getenv("XHS_URL")?.trimEnd('/') ?: "http://localhost:5556"
+
     suspend fun detail(url: String): XhsDetail {
-        val jsonNode = client.post("http://localhost:5556/xhs/detail") {
+        val jsonNode = client.post("$xhsUrl/xhs/detail") {
             setJsonBody("""
                 {"url": "$url"}
             """.trimIndent())

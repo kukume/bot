@@ -33,6 +33,12 @@ import kotlin.io.path.exists
 
 object BiliBiliLogic {
 
+    init {
+        val tmp = File("tmp")
+        if (tmp.exists() && !tmp.isDirectory) tmp.delete()
+        if (!tmp.exists()) tmp.mkdirs()
+    }
+
     suspend fun getIdByName(username: String): List<BiliBiliPojo> {
         val enUsername = username.toUrlEncode()
         val jsonNode = client.get("https://api.bilibili.com/x/web-interface/search/type?context=&search_type=bili_user&page=1&order=&keyword=$enUsername&category_id=&user_type=&order_sort=&changing=mid&__refresh__=true&_extra=&highlight=1&single_column=0&jsonp=jsonp&callback=__jp2") {

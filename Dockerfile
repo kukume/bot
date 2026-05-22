@@ -47,6 +47,18 @@ ENTRYPOINT ["/app/bin/headless"]
 # ============================================
 FROM eclipse-temurin:21-jre AS onebot
 
+# jmcomic runs through pipx, so keep pipx-managed executables on PATH.
+ENV PATH="/root/.local/bin:${PATH}"
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    pipx \
+    && rm -rf /var/lib/apt/lists/* \
+    && pipx ensurepath \
+    && pipx install jmcomic
+
+RUN mkdir -p /root/jmcomic
+COPY jmcomic.yml /root/jmcomic/jmcomic.yml
+
 WORKDIR /app
 
 COPY --from=builder /app/onebot/build/install/onebot /app

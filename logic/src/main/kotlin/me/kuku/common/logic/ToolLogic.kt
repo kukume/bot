@@ -29,6 +29,12 @@ import kotlin.time.Duration.Companion.hours
 
 object ToolLogic {
 
+    init {
+        val tmp = File("tmp")
+        if (tmp.exists() && !tmp.isDirectory) tmp.delete()
+        if (!tmp.exists()) tmp.mkdirs()
+    }
+
     private val fishCache = CacheManager.getCache<String, String>("fishing", 1.hours)
     private const val FISH_KEY = "fishing"
 

@@ -72,9 +72,11 @@ class LinuxDoCommand: BaseCommand() {
     }
 }
 
+private val zhiHuUrl = System.getenv("ZHIHU_URL")?.trimEnd('/') ?: "http://localhost:38127"
+
 suspend fun zhiHuPic(url: String): ByteArray {
     return client.submitForm(
-        url = "http://localhost:38127/render",
+        url = "$zhiHuUrl/render",
         parameters { append("url", url) }
     ).bodyAsBytes()
 }
