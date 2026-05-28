@@ -6,6 +6,7 @@ import cn.rtast.rob.entity.toResource
 import cn.rtast.rob.event.raw.message.GroupMessage
 import cn.rtast.rob.onebot.dsl.image
 import cn.rtast.rob.onebot.dsl.messageChain
+import cn.rtast.rob.onebot.dsl.video
 import cn.rtast.rob.enums.SegmentType
 import cn.rtast.rob.event.onEvent
 import cn.rtast.rob.event.packed.GroupMessageEvent
@@ -19,6 +20,7 @@ import kotlinx.coroutines.sync.withLock
 import me.kuku.common.ktor.client
 import me.kuku.common.logic.AnthropicLogic
 import me.kuku.common.logic.GeminiLogic
+import me.kuku.common.logic.GrokLogic
 import me.kuku.common.logic.OpenaiLogic
 import me.kuku.onebot.config.ROneBot
 import org.koin.core.annotation.Single
@@ -156,6 +158,28 @@ class ImageCommand: BaseCommand() {
             val ba = Base64.getDecoder().decode(base64)
             message.reply(messageChain {
                 image(ba.toResource())
+            })
+        }
+    }
+}
+
+@Single
+class VideoCommand: BaseCommand() {
+    override val commandNames = listOf("video")
+
+    private val mutex = Mutex()
+
+    override suspend fun executeGroup(
+        message: GroupMessage,
+        args: List<String>
+    ) {
+        val prompt = args.joinToString(" ")
+        if (prompt.isBlank()) return
+        mutex.withLock {
+            message.reply("生成视频中")
+            val url = GrokLogic.video(prompt)
+            message.reply(messageChain {
+                video(url)
             })
         }
     }
