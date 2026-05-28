@@ -178,7 +178,7 @@ class VideoCommand: BaseCommand() {
         mutex.withLock {
             message.reply("生成视频中")
             val url = GrokLogic.video(prompt)
-            message.reply(messageChain {
+            message.sendMessage(messageChain {
                 video(url)
             })
         }
