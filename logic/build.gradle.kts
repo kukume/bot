@@ -39,6 +39,7 @@ dependencies {
     ksp(libs.jimmer.ksp)
 
     compileOnly(libs.koin.core)
+    compileOnly(libs.mcp.client)
 
     compileOnly(libs.telegram.bot.source.exposed)
 

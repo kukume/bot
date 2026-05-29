@@ -7,6 +7,8 @@ import com.openai.models.chat.completions.ChatCompletionContentPart
 import com.openai.models.chat.completions.ChatCompletionContentPartImage
 import com.openai.models.chat.completions.ChatCompletionContentPartText
 import com.openai.models.chat.completions.ChatCompletionCreateParams
+import com.openai.models.chat.completions.ChatCompletionTool
+import com.openai.models.chat.completions.ChatCompletionToolMessageParam
 import com.openai.models.chat.completions.ChatCompletionUserMessageParam
 import com.openai.models.images.Image
 import com.openai.models.images.ImageEditParams
@@ -14,7 +16,12 @@ import com.openai.models.images.ImageGenerateParams
 import com.openai.models.responses.ResponseCreateParams
 import com.openai.models.responses.WebSearchTool
 import com.github.benmanes.caffeine.cache.Cache
+import io.modelcontextprotocol.kotlin.sdk.types.TextContent
 import kotlinx.coroutines.future.await
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.jsonObject
+import me.kuku.common.mcp.McpClientManager
+import me.kuku.common.mcp.McpToolConverter
 import me.kuku.common.utils.CacheManager
 import java.io.ByteArrayInputStream
 import java.time.Duration
@@ -40,6 +47,8 @@ object OpenaiLogic {
             .type(WebSearchTool.Type.of("web_search"))
             .build()
     }
+
+    var mcpManager: McpClientManager? = null
 
     private fun detectImageTypeFromBase64(base64: String): String? {
         val pureBase64 = base64.substringAfter(",")
@@ -68,7 +77,7 @@ object OpenaiLogic {
         }
     }
 
-    fun build(key: String, text: String, photoList: List<String>, systemMessage: String? = null): OpenaiPojo {
+    fun build(key: String, text: String, photoList: List<String>, systemMessage: String? = null, tools: List<ChatCompletionTool>? = null): OpenaiPojo {
 
         var cacheBody = cache.getIfPresent(key)
 
@@ -86,6 +95,7 @@ object OpenaiLogic {
             .addUserMessage(ChatCompletionUserMessageParam.Content.ofArrayOfContentParts(mutableListOf(
                 ChatCompletionContentPart.ofText(ChatCompletionContentPartText.builder().text(text).build())
             ).also { it.addAll(fileList) }))
+            .also { if (tools != null) it.tools(tools) }
             .build()
         cacheBody = chatCompletionCreateParams
 
@@ -95,15 +105,46 @@ object OpenaiLogic {
 
     suspend fun openai(key: String, text: String, photoList: List<String>, systemMessage: String? = null): String {
         if (photoList.isEmpty()) return response(key, text, systemMessage)
-        val pojo = build(key, text, photoList, systemMessage)
-        val cacheBody = pojo.cacheBody
-        val chatCompletion = client.chat().completions().create(pojo.chatCompletionCreateParams).await()
-        val openaiText = chatCompletion.choices()[0].message().content().orElse("")
-        cache.put(key, cacheBody.toBuilder().addAssistantMessage(openaiText).build())
-        val usage = chatCompletion.usage().orElseThrow()
-        val model = chatCompletion.model()
-        val prefix = "model: $model\npromptToken: ${usage.promptTokens()}\ncompletionToken: ${usage.completionTokens()}\n"
-        return "$prefix\n$openaiText"
+
+        val manager = mcpManager
+        val mcpTools = manager?.listAllTools()
+        val openAiTools = if (!mcpTools.isNullOrEmpty()) McpToolConverter.toOpenAiTools(mcpTools) else null
+
+        val pojo = build(key, text, photoList, systemMessage, openAiTools)
+        var params = pojo.chatCompletionCreateParams
+
+        while (true) {
+            val completion = client.chat().completions().create(params).await()
+            val message = completion.choices()[0].message()
+            val toolCalls = message.toolCalls().orElse(null)?.takeIf { it.isNotEmpty() }
+
+            if (toolCalls != null && manager != null) {
+                val builder = params.toBuilder()
+                builder.addMessage(message)
+
+                for (toolCall in toolCalls) {
+                    val functionCall = toolCall.asFunction()
+                    val function = functionCall.function()
+                    val args = Json.parseToJsonElement(function.arguments()).jsonObject.toMap()
+                    val result = manager.callTool(function.name(), args)
+                    val resultText = result.content.filterIsInstance<TextContent>().joinToString("") { it.text }
+                    builder.addMessage(
+                        ChatCompletionToolMessageParam.builder()
+                            .toolCallId(functionCall.id())
+                            .content(resultText)
+                            .build()
+                    )
+                }
+
+                params = builder.also { if (openAiTools != null) it.tools(openAiTools) }.build()
+            } else {
+                val openaiText = message.content().orElse("")
+                cache.put(key, params.toBuilder().addAssistantMessage(openaiText).build())
+                val usage = completion.usage().orElseThrow()
+                val prefix = "model: ${completion.model()}\npromptToken: ${usage.promptTokens()}\ncompletionToken: ${usage.completionTokens()}\n"
+                return "$prefix\n$openaiText"
+            }
+        }
     }
 
     private suspend fun response(key: String, text: String, systemMessage: String? = null): String {
