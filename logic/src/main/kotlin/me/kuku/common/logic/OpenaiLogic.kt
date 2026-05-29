@@ -11,6 +11,8 @@ import com.openai.models.chat.completions.ChatCompletionUserMessageParam
 import com.openai.models.images.Image
 import com.openai.models.images.ImageEditParams
 import com.openai.models.images.ImageGenerateParams
+import com.openai.models.responses.ResponseCreateParams
+import com.openai.models.responses.WebSearchTool
 import com.github.benmanes.caffeine.cache.Cache
 import kotlinx.coroutines.future.await
 import me.kuku.common.utils.CacheManager
@@ -32,7 +34,12 @@ object OpenaiLogic {
     private val client = OpenAIOkHttpClientAsync.builder()
         .fromEnv()
         .build()
-    private val model by lazy { System.getenv("OPENAI_MODEL") }
+    private val model by lazy { System.getenv("OPENAI_MODEL") ?: "grok-4.3" }
+    private val webSearchTool by lazy {
+        WebSearchTool.builder()
+            .type(WebSearchTool.Type.of("web_search"))
+            .build()
+    }
 
     private fun detectImageTypeFromBase64(base64: String): String? {
         val pureBase64 = base64.substringAfter(",")
@@ -87,6 +94,7 @@ object OpenaiLogic {
     }
 
     suspend fun openai(key: String, text: String, photoList: List<String>, systemMessage: String? = null): String {
+        if (photoList.isEmpty()) return response(key, text, systemMessage)
         val pojo = build(key, text, photoList, systemMessage)
         val cacheBody = pojo.cacheBody
         val chatCompletion = client.chat().completions().create(pojo.chatCompletionCreateParams).await()
@@ -96,6 +104,35 @@ object OpenaiLogic {
         val model = chatCompletion.model()
         val prefix = "model: $model\npromptToken: ${usage.promptTokens()}\ncompletionToken: ${usage.completionTokens()}\n"
         return "$prefix\n$openaiText"
+    }
+
+    private suspend fun response(key: String, text: String, systemMessage: String? = null): String {
+        val cacheBody = cache.getIfPresent(key)
+        val input = buildString {
+            systemMessage?.let { append("system: ").append(it).append("\n\n") }
+            cacheBody?.messages()?.forEach { append(it.toString()).append("\n") }
+            append(text)
+        }
+        val params = ResponseCreateParams.builder()
+            .model(model)
+            .input(input)
+            .addTool(webSearchTool)
+            .build()
+        val response = client.responses().create(params).await()
+        val responseText = response.output().mapNotNull { output ->
+            output.message().orElse(null)?.content()?.mapNotNull { content ->
+                content.outputText().orElse(null)?.text()
+            }?.joinToString("")
+        }.joinToString("\n")
+        cache.put(key, (cacheBody?.toBuilder() ?: ChatCompletionCreateParams.builder())
+            .addUserMessage(text)
+            .addAssistantMessage(responseText)
+            .model(model)
+            .build())
+        val usage = response.usage().orElse(null)
+        val prefix = "model: ${response.model().asString()}" + if (usage == null) "" else
+            "\npromptToken: ${usage.inputTokens()}\ncompletionToken: ${usage.outputTokens()}"
+        return "$prefix\n\n$responseText"
     }
 
     suspend fun image(prompt: String, model: String = System.getenv("OPENAI_IMAGE_MODEL") ?: "gpt-image-2"): Image {
