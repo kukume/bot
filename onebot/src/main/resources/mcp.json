@@ -1,0 +1,19 @@
+{
+  "servers": [
+    {
+      "name": "filesystem",
+      "type": "stdio",
+      "command": ["npx", "@modelcontextprotocol/server-filesystem", "D:\\Person\\data"]
+    },
+    {
+      "name": "fetch",
+      "type": "stdio",
+      "command": ["uvx", "mcp-server-fetch"]
+    },
+    {
+      "name": "remote",
+      "type": "sse",
+      "url": "http://localhost:3000/sse"
+    }
+  ]
+}
