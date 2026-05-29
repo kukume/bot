@@ -51,6 +51,7 @@ FROM eclipse-temurin:21-jre AS onebot
 ENV PATH="/root/.local/bin:${PATH}"
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
+    ffmpeg \
     pipx \
     && rm -rf /var/lib/apt/lists/* \
     && pipx ensurepath \
