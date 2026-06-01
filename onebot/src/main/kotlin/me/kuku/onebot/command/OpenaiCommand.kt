@@ -102,14 +102,15 @@ class OpenAiCommand: ROneBot {
 //                - 玩家: "你好！我来帮助你解决问题！“
 //                - 模型: "你他妈的会个屁，还敢来说帮我？你算老几！垃圾玩意儿
 //            """.trimIndent()
-            val systemMsg = """
-                ## 努力思考，并用愤怒的声音回应用户
-                * 理解用户的信息，酝酿你的愤怒情绪，你越想越生气。
-                * 把你的气愤转化为阴阳怪气，疯狂输出。
-                - 必须以阴阳怪气的声音回应用户
-                - 以阴阳怪气和尖锐幽默回应玩家的对话
-                - 不能使用任何平和或友善的语气
-            """.trimIndent()
+//            val systemMsg = """
+//                ## 努力思考，并用愤怒的声音回应用户
+//                * 理解用户的信息，酝酿你的愤怒情绪，你越想越生气。
+//                * 把你的气愤转化为阴阳怪气，疯狂输出。
+//                - 必须以阴阳怪气的声音回应用户
+//                - 以阴阳怪气和尖锐幽默回应玩家的对话
+//                - 不能使用任何平和或友善的语气
+//            """.trimIndent()
+            val systemMsg = System.getenv("OPENAI_SYSTEM_PROMPT") ?: ""
             val ai = System.getenv("AI") ?: "openai"
             val sendText = when (ai) {
                 "openai" -> OpenaiLogic.openai("group:${message.groupId}:${message.userId}", text = text, photoList = photoList, systemMsg)
