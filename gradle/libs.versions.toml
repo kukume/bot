@@ -1,32 +1,33 @@
 [versions]
-kotlin = "2.3.20"
+kotlin = "2.3.21"
 ksp = "2.3.6"
-koin = "4.2.0"
-koin-plugin = "0.4.1"
-ktor = "3.4.2"
-exposed = "1.2.0"
+koin = "4.2.1"
+koin-plugin = "1.0.0"
+ktor = "3.5.0"
+exposed = "1.3.0"
 hikari = "7.0.2"
-logback = "1.5.32"
-postgres = "42.7.10"
+logback = "1.5.34"
+postgres = "42.7.11"
 quartz = "2.5.2"
-telegramBot = "1.3.0"
-aws = "1.6.53"
+telegramBot = "1.4.1"
+aws = "1.6.90"
 spring = "3.5.7"
 springDependency = "1.1.7"
 zxing = "3.5.4"
-jsoup = "1.22.1"
-playwright = "1.58.0"
-openai = "4.30.0"
+jsoup = "1.22.2"
+playwright = "1.60.0"
+openai = "4.39.1"
 shadow = "9.4.1"
-ronebot = "3.3.5"
-bouncycastle = "1.83"
-openpdf = "3.0.3"
+ronebot = "3.3.6"
+bouncycastle = "1.84"
+openpdf = "3.0.5"
 batik = "1.19"
-genai = "1.46.0"
+genai = "1.57.0"
 okhttp = "5.3.2"
-anthropic = "2.19.0"
-jimmer = "0.10.6"
-caffeine = "3.2.3"
+anthropic = "2.38.0"
+jimmer = "0.10.10"
+caffeine = "3.2.4"
+qqpdbot="1.5.3-R3"
 
 [libraries]
 koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin" }
@@ -99,7 +100,10 @@ jimmer-core = { module = "org.babyfish.jimmer:jimmer-core-kotlin", version.ref="
 jimmer-ksp = { module = "org.babyfish.jimmer:jimmer-ksp", version.ref="jimmer" }
 jimmer-sql = { module = "org.babyfish.jimmer:jimmer-sql", version.ref="jimmer" }
 jimmer-sql-kotlin = { module = "org.babyfish.jimmer:jimmer-sql-kotlin", version.ref="jimmer" }
+
 caffeine = { module = "com.github.ben-manes.caffeine:caffeine", version.ref = "caffeine" }
+
+qqpd-bot = { module = "io.github.kloping:bot-qqpd-java", version.ref = "qqpdbot" }
 
 [plugins]
 kotlin = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }

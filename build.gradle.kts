@@ -38,8 +38,4 @@ subprojects {
             freeCompilerArgs.add("-Xcontext-parameters")
         }
     }
-
-    ksp {
-        arg("KOIN_DEFAULT_MODULE","true")
-    }
 }
