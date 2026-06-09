@@ -36,7 +36,7 @@ object YgoLogic {
         val url = "https://ygocdb.com/card/$id"
         val str = client.get(url).bodyAsText()
         val document = Jsoup.parse(str)
-        val imageUrl = document.select(".cardimg img").first()!!.attr("src")
+        val imageUrl = document.select(".cardimg img").first()!!.attr("srcset").split(" ")[0]
         val chineseName = document.selectFirst("""span[lang="zh-Hans"]""")?.text()!!
         val japaneseName = document.selectFirst("""span[lang="ja-Jpan"]""")?.text()!!
         val englishName = document.selectFirst("""span[lang="en"]""")?.text()!!

@@ -41,8 +41,4 @@ dependencies {
     compileOnly(libs.koin.core)
 
     compileOnly(libs.telegram.bot.source.exposed)
-
-    testCompileOnly(libs.jimmer.sql.kotlin)
-    testCompileOnly(libs.hikari)
-    testCompileOnly(libs.postgresql)
 }
