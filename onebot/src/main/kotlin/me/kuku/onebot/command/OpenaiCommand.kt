@@ -31,6 +31,7 @@ class OpenAiCommand: ROneBot {
     override fun BotInstance.execute() {
         @Suppress("DuplicatedCode")
         onEvent<GroupMessageEvent> { event ->
+            val ai = System.getenv("AI") ?: return@onEvent
             val message = event.message
             var text = ""
             val photoList = mutableListOf<String>()
@@ -111,7 +112,6 @@ class OpenAiCommand: ROneBot {
 //                - 不能使用任何平和或友善的语气
 //            """.trimIndent()
             val systemMsg = System.getenv("OPENAI_SYSTEM_PROMPT") ?: ""
-            val ai = System.getenv("AI") ?: "openai"
             val sendText = when (ai) {
                 "openai" -> OpenaiLogic.openai("group:${message.groupId}:${message.userId}", text = text, photoList = photoList, systemMsg)
                 "claude" -> AnthropicLogic.claude("group:${message.groupId}:${message.userId}", text, photoList, systemMsg)
