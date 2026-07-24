@@ -156,7 +156,9 @@ object KuGouLogic {
         }
         // little-endian integer over u[0..127]
         val m = BigInteger(1, u.reversedArray())
-        return m.modPow(exp, modulus).toString(16)
+        // kguser RSA biToHex always emits 4 hex chars per 16-bit digit (1024-bit => 256 hex).
+        // BigInteger.toString(16) drops leading zeros and mismatches ~8% of random keys.
+        return m.modPow(exp, modulus).toString(16).padStart(256, '0')
     }
 
     suspend fun sendMobileCode(phone: String, mid: String) {

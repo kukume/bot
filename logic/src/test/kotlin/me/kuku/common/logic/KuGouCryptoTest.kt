@@ -1,6 +1,7 @@
 package me.kuku.common.logic
 
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 
 class KuGouCryptoTest {
@@ -18,5 +19,21 @@ class KuGouCryptoTest {
         val (params, pk) = KuGouLogic.encryptMobileCode(phone, time, fixedKey = key)
         assertEquals(expectedParams, params)
         assertEquals(expectedPk, pk)
+        assertEquals(256, pk.length)
+    }
+
+    @Test
+    fun rsaHexIsAlways256CharsWithLeadingZeros() {
+        // Known kguser output that needs a leading '0' (BigInteger.toString(16) would be 255 chars).
+        val phone = "13800138000"
+        val time = 1784878857357L
+        val key = "8QKCF3141DML22RR"
+        val expectedPk =
+            "0a1bb16d6dd26396cd877031e6e26f967dc1543c24dee10a1c2e7b1c445ffdd999907605c0f0fd1ff1cf53ea1d7d7b6be4a6dc8d6c2ad84f3f3edc88a48bd3ebf5ee58db46da23e1b1687fb9c63bbe274742bf3e7511e48fdf2e9b127f0210d3925dde0f73e7c75e538e3a2db427bbbbfa282baef0efee027d2f383eff52bd3b"
+
+        val (_, pk) = KuGouLogic.encryptMobileCode(phone, time, fixedKey = key)
+        assertEquals(256, pk.length)
+        assertEquals(expectedPk, pk)
+        assertTrue(pk.startsWith("0"))
     }
 }
