@@ -1,6 +1,6 @@
 # ============================================
 # Multi-stage Dockerfile for kukume/bot
-# Supports: headless, onebot, qq, telegram
+# Supports: onebot, qq, telegram
 # ============================================
 
 # ---------- Build Stage ----------
@@ -15,31 +15,14 @@ COPY settings.gradle.kts .
 COPY build.gradle.kts .
 COPY gradle.properties* ./
 
-# Copy all subprojects
+# Copy subprojects (headless intentionally omitted)
 COPY logic logic
-COPY headless headless
 COPY onebot onebot
 COPY qq qq
 COPY telegram telegram
 
 # Build all projects (installDist for distribution)
 RUN gradle --no-daemon clean installDist
-
-
-# ============================================
-# Headless (Playwright + Browser required)
-# ============================================
-# Use official Playwright Java image which already includes browsers and dependencies
-FROM mcr.microsoft.com/playwright/java:v1.58.0-noble AS headless
-
-WORKDIR /app
-
-# Copy distribution from builder
-COPY --from=builder /app/headless/build/install/headless /app
-
-EXPOSE 8080
-
-ENTRYPOINT ["/app/bin/headless"]
 
 
 # ============================================

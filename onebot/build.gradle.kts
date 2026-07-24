@@ -23,3 +23,8 @@ dependencies {
 application {
     mainClass = "me.kuku.onebot.OneBotApplicationKt"
 }
+
+tasks.shadowJar {
+    archiveFileName.set("onebot.jar")
+    mergeServiceFiles()
+}

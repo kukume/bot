@@ -35,30 +35,6 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # ==================== headless ====================
-      - name: Extract metadata for headless
-        id: meta-headless
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          tags: |
-            type=raw,value=headless
-
-      - name: Build and push headless
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: ./Dockerfile
-          target: headless
-          push: true
-          platforms: linux/amd64,linux/arm64
-          tags: ${{ steps.meta-headless.outputs.tags }}
-          labels: ${{ steps.meta-headless.outputs.labels }}
-          provenance: false
-          sbom: false
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-
       # ==================== onebot ====================
       - name: Extract metadata for onebot
         id: meta-onebot

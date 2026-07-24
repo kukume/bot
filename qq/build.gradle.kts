@@ -19,6 +19,11 @@ application {
     mainClass.set("me.kuku.qqbot.QqApplicationKt")
 }
 
+tasks.shadowJar {
+    archiveFileName.set("qq.jar")
+    mergeServiceFiles()
+}
+
 koinCompiler {
     compileSafety = false
 }

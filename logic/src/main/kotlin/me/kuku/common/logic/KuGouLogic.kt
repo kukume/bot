@@ -14,6 +14,7 @@ import me.kuku.common.ktor.referer
 import me.kuku.common.ktor.renderCookieHeader
 import me.kuku.common.ktor.setJsonBody
 import me.kuku.common.utils.*
+import java.math.BigInteger
 import java.util.*
 
 data class KuGouQrcode (
@@ -113,6 +114,51 @@ object KuGouLogic {
         }
     }
 
+    /**
+     * kguser.v2 AES+RSA for send_mobile_code.
+     * AES: random 16-char key from [0-9A-Z]; AES-256-CBC with key=md5(key) hex, iv=last 16 of that md5; ciphertext hex.
+     * RSA: 1024-bit n fixed, e=0x10001, NoPadding with plaintext bytes written from end of 128-byte block backwards.
+     */
+    fun encryptMobileCode(phone: String, time: Long, fixedKey: String? = null): Pair<String, String> {
+        val keyChars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        val key = fixedKey ?: buildString(16) {
+            repeat(16) {
+                // mirror Math.ceil(35 * Math.random()) used by kguser
+                val idx = kotlin.math.ceil(35 * Math.random()).toInt().coerceIn(0, keyChars.lastIndex)
+                append(keyChars[idx])
+            }
+        }
+        val aesKeyMaterial = key.md5()
+        val ivMaterial = aesKeyMaterial.substring(aesKeyMaterial.length - 16)
+        val plain = """{"mobile":"$phone"}"""
+        val params = plain.aes(aesKeyMaterial, ivMaterial).hex()
+        val pkPlain = """{"clienttime_ms":$time,"key":"$key"}"""
+        val pk = kugouRsaEncrypt(pkPlain)
+        return params to pk
+    }
+
+    private fun kugouRsaEncrypt(plaintext: String): String {
+        val modulus = BigInteger(
+            "B1B1EC76A1BBDBF0D18E8CD9A87E53FA3881E2F004C67C9DDA2CA677DBEFA3D61DF8463FE12D84FF4B4699E02C9D41CAB917F5A8FB9E35580C4BDF97763A0420A476295D763EE10174E6F9EBF7DF8A77BA5B20CDA4EE705DEF5BBA3C88567B9656E52C9CD5CD95CA735FF2D25F762B133273EEEB7B4F3EA8B6DA29040F3B67CD",
+            16
+        )
+        val exp = BigInteger("10001", 16)
+        val data = plaintext.toByteArray(Charsets.UTF_8)
+        val chunkSize = 128
+        require(data.size <= chunkSize) { "RSA plaintext too long: ${data.size}" }
+        val u = ByteArray(chunkSize)
+        var n = 0
+        var o = chunkSize - 1
+        while (n < data.size) {
+            u[o] = data[n]
+            n++
+            o--
+        }
+        // little-endian integer over u[0..127]
+        val m = BigInteger(1, u.reversedArray())
+        return m.modPow(exp, modulus).toString(16)
+    }
+
     suspend fun sendMobileCode(phone: String, mid: String) {
         val time = System.currentTimeMillis()
         val map = mutableMapOf(
@@ -125,14 +171,7 @@ object KuGouLogic {
             "dfid" to "-",
             "srcappid" to "2919"
         )
-        val preJsonNode = client.submitForm("https://api.kuku.pp.ua/exec/kuGou",
-            parameters {
-                append("phone", phone)
-                append("time", time.toString())
-            }
-        ).body<JsonNode>()
-        val params = preJsonNode["params"]?.asText() ?: error("获取加密参数失败，可能手机号格式不正确")
-        val pk = preJsonNode["pk"].asText()
+        val (params, pk) = encryptMobileCode(phone, time)
         val mobile = phone.substring(0, 2) + "********" + phone.substring(phone.length - 1)
         val other = "{\"plat\":4,\"clienttime_ms\":$time,\"businessid\":5,\"pk\":\"$pk\",\"params\":\"$params\",\"mobile\":\"$mobile\"}"
         val jsonNode = client.post("https://gateway.kugou.com/v8/send_mobile_code?${signature2(map, other)}") {

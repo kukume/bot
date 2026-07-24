@@ -1,0 +1,68 @@
+name: Build and Release JARs
+
+on:
+  push:
+    branches: [master, main]
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release-jars:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v5
+
+      - name: Build JARs
+        run: ./gradlew --no-daemon :onebot:shadowJar :qq:shadowJar :telegram:buildFatJar
+
+      - name: Collect artifacts
+        run: |
+          mkdir -p release-assets
+          cp onebot/build/libs/onebot.jar release-assets/
+          cp qq/build/libs/qq.jar release-assets/
+          cp telegram/build/libs/telegram.jar release-assets/
+          ls -lh release-assets
+
+      - name: Resolve release tag
+        id: release
+        run: |
+          if [[ "${GITHUB_REF}" == refs/tags/* ]]; then
+            echo "tag=${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
+            echo "name=${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
+            echo "prerelease=false" >> "$GITHUB_OUTPUT"
+            echo "make_latest=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "tag=latest" >> "$GITHUB_OUTPUT"
+            echo "name=latest" >> "$GITHUB_OUTPUT"
+            echo "prerelease=true" >> "$GITHUB_OUTPUT"
+            echo "make_latest=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Upload to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.release.outputs.tag }}
+          name: ${{ steps.release.outputs.name }}
+          prerelease: ${{ steps.release.outputs.prerelease }}
+          make_latest: ${{ steps.release.outputs.make_latest }}
+          generate_release_notes: true
+          files: |
+            release-assets/onebot.jar
+            release-assets/qq.jar
+            release-assets/telegram.jar
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

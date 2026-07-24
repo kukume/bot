@@ -44,6 +44,13 @@ application {
     mainClass.set("me.kuku.telegram.TelegramApplicationKt")
 }
 
+// Ktor plugin already brings shadow + buildFatJar (which depends on shadowJar).
+// Only rename the fat jar for release assets.
+tasks.named("shadowJar", com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar::class) {
+    archiveFileName.set("telegram.jar")
+    mergeServiceFiles()
+}
+
 koinCompiler {
     compileSafety = false
 }
