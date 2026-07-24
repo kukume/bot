@@ -9,6 +9,7 @@ import io.ktor.client.request.*
 import io.ktor.client.request.forms.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
+import kotlinx.coroutines.runBlocking
 import me.kuku.common.entity.WeiboEntity
 import me.kuku.common.exception.qrcodeExpire
 import me.kuku.common.exception.qrcodeNotScanned
@@ -22,10 +23,27 @@ import org.jsoup.Jsoup
 
 object WeiboLogic {
 
+    private val preCookie by lazy {
+        runBlocking {
+            val response = client.submitForm("https://visitor.passport.weibo.cn/visitor/genvisitor2", parameters {
+                append("cb", "visitor_gray_callback")
+                append("ver", "20250916")
+                append("request_id", "9c8ae4e24224dcc7f9b71ab392f6f39f")
+                append("tid", "")
+                append("from", "weibo")
+                append("webdriver", "false")
+                append("rid", "")
+                append("return_url", "https://m.weibo.cn/")
+            })
+            response.setCookie().renderCookieHeader()
+        }
+    }
+
     suspend fun getIdByName(name: String, page: Int = 1): List<WeiboPojo> {
         val newName = name.toUrlEncode()
         val response = client.get("https://m.weibo.cn/api/container/getIndex?containerid=100103type%3D3%26q%3D$newName%26t%3D0&page_type=searchall&page=$page") {
             referer("https://m.weibo.cn/search?containerid=100103type%3D1%26q%3D$newName")
+            cookieString(preCookie)
         }
         return if (response.status == HttpStatusCode.OK) {
             val jsonNode = response.body<JsonNode>()
@@ -134,7 +152,9 @@ object WeiboLogic {
     }
 
     suspend fun getWeiboById(id: String): List<WeiboPojo> {
-        val response = client.get("https://m.weibo.cn/api/container/getIndex?type=uid&uid=$id&containerid=107603$id")
+        val response = client.get("https://m.weibo.cn/api/container/getIndex?type=uid&uid=$id&containerid=107603$id") {
+            cookieString(preCookie)
+        }
         return if (response.status == HttpStatusCode.OK) {
             val jsonNode = response.body<JsonNode>()
             val cardJsonArray = jsonNode.get("data").get("cards")

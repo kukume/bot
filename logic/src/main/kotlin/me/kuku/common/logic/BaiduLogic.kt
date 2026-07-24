@@ -18,6 +18,7 @@ import me.kuku.common.utils.*
 import org.jetbrains.exposed.v1.jdbc.transactions.suspendTransaction
 import org.jsoup.Jsoup
 import java.util.*
+import kotlin.time.Duration.Companion.seconds
 
 object BaiduLogic {
 
@@ -155,13 +156,13 @@ object BaiduLogic {
             if (a.isNotEmpty()) list.add(a[0].attr("title"))
         }
         for (s in list) {
-            delay(5000)
-            val html =
-                client.get("https://tieba.baidu.com/f?kw=${s.toUrlEncode()}&fr=index") { headers { headers.forEach { append(it.key, it.value) } } }.bodyAsText()
-            val tbs = RegexUtils.extract(html, "'tbs': \"", "\"")!!
+            delay(5.seconds)
+//            val html =
+//                client.get("https://tieba.baidu.com/f?kw=${s.toUrlEncode()}&fr=index") { headers { headers.forEach { append(it.key, it.value) } } }.bodyAsText()
+//            val tbs = RegexUtils.extract(html, "'tbs': \"", "\"")!!
             val jsonObject = client.submitForm("https://tieba.baidu.com/sign/add",
                 parameters {
-                    mapOf("ie" to "utf-8", "kw" to s, "tbs" to tbs).forEach { append(it.key, it.value) }
+                    mapOf("ie" to "utf-8", "kw" to s/*, "tbs" to tbs*/).forEach { append(it.key, it.value) }
                 }) {
                 headers {
                     headers.forEach { append(it.key, it.value) }

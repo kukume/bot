@@ -12,7 +12,8 @@ allprojects {
         mavenCentral()
         maven("https://packages.rtast.cn/snapshots")
         maven("https://repo.maven.rtast.cn/releases")
-        maven("https://maven.kuku.me/central/")
+        maven("https://central.sonatype.com/repository/maven-snapshots/")
+//        maven("https://maven.kuku.me/central/")
     }
 }
 

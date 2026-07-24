@@ -14,7 +14,6 @@ dependencies {
     implementation(libs.openpdf)
     implementation(libs.batik.transcoder)
     implementation(libs.batik.codec)
-    implementation(libs.google.genai)
     implementation(libs.openai)
     implementation(libs.jsoup)
     implementation(libs.anthropic)

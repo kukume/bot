@@ -20,8 +20,6 @@ import org.jetbrains.exposed.v1.dao.IntEntity
 import org.jetbrains.exposed.v1.dao.IntEntityClass
 import org.jetbrains.exposed.v1.jdbc.transactions.suspendTransaction
 import org.koin.core.annotation.Factory
-import org.koin.java.KoinJavaComponent.inject
-import org.koin.ktor.ext.getKoin
 import org.koin.ktor.ext.inject
 import org.koin.mp.KoinPlatform.getKoin
 import java.util.UUID
@@ -106,10 +104,10 @@ class MessageTokenHandler : BotHandler({
         val entity = refreshMessageToken(fromId, chatId)
         editMessageText(
             message.messageId,
-            """
+            text = """
             当前消息token：
             ${entity.token}
-            
+
             已刷新，可通过接口按 token 给你发送消息。
             """.trimIndent(),
             replyMarkup = tokenMarkup(chatId, fromId, entity.token)

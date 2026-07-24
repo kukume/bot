@@ -56,7 +56,7 @@ class UserConfigHandler(
                 it[config.column] = !status
             }
         }
-        editMessageText(message.messageId, "一些配置，点击按钮可以切换", replyMarkup = markup(fromId, chatId))
+        editMessageText(message.messageId, text = "一些配置，点击按钮可以切换", replyMarkup = markup(fromId, chatId))
     }
 
 

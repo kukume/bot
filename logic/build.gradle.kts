@@ -28,7 +28,6 @@ dependencies {
     compileOnly(libs.openpdf)
     compileOnly(libs.batik.transcoder)
     compileOnly(libs.batik.codec)
-    compileOnly(libs.google.genai)
 
     compileOnly(libs.zxing.javase)
     compileOnly(libs.aws.s3)

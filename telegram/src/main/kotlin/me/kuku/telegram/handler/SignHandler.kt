@@ -233,7 +233,7 @@ class IdentityHandler: BotHandler({
         list.add(callbackButton("管理", "identityManager", key))
         list.add(callbackButton("返回", "sign", key))
         if (this is CallbackContainer) {
-            editMessageText(message.messageId, "$name\n请选择您的身份，用于多账号", replyMarkup = inlineKeyboard(*list.toTypedArray()))
+            editMessageText(message.messageId, text = "$name\n请选择您的身份，用于多账号", replyMarkup = inlineKeyboard(*list.toTypedArray()))
         } else {
             sendMessage("$name\n请选择您的身份，用于多账号", replyMarkup = inlineKeyboard(*list.toTypedArray()))
         }
@@ -245,7 +245,7 @@ class IdentityHandler: BotHandler({
     }
 
     callback("identityAdd") {
-        editMessageText(message.messageId, "请发送您需要新增的身份名称")
+        editMessageText(message.messageId, text = "请发送您需要新增的身份名称")
         next("identityAdd0", transferred())
     }
     step("identityAdd0") {
@@ -272,7 +272,7 @@ class IdentityHandler: BotHandler({
         val list = identityList.map { callbackButton(it.name(), "identityManager0", KeyAndId(key, it.id.value)) }
             .toMutableList()
         list.add(callbackButton("返回", "selectIdentity", transferred()))
-        editMessageText(message.messageId, "请选择您要操作的身份",
+        editMessageText(message.messageId, text = "请选择您要操作的身份",
             replyMarkup = inlineKeyboard(*list.toTypedArray()))
     }
 
@@ -281,7 +281,7 @@ class IdentityHandler: BotHandler({
         val name = suspendTransaction {
             IdentityEntity.find { IdentityTable.id eq data.id }.first()
         }.identityName
-        editMessageText(message.messageId, "$name\n请选择您要操作方式", replyMarkup = inlineKeyboard(
+        editMessageText(message.messageId, text = "$name\n请选择您要操作方式", replyMarkup = inlineKeyboard(
             callbackButton("修改名称", "identityChangeName", data),
             callbackButton("删除", "identityDelete", data),
             callbackButton("返回", "identityManager", data.key)
@@ -289,7 +289,7 @@ class IdentityHandler: BotHandler({
     }
 
     callback("identityChangeName") {
-        editMessageText(message.messageId, "请发送新的身份名称")
+        editMessageText(message.messageId, text = "请发送新的身份名称")
         next("identityChangeName0", transferred())
     }
     step("identityChangeName0") {
@@ -315,7 +315,7 @@ class IdentityHandler: BotHandler({
             }
             identityEntity.delete()
         }
-        editMessageText(message.messageId, "删除身份成功", replyMarkup = inlineKeyboard(
+        editMessageText(message.messageId, text = "删除身份成功", replyMarkup = inlineKeyboard(
             callbackButton("返回", "identityManager", data.key)
         ))
     }
@@ -338,7 +338,7 @@ class LoginHandler: BotHandler({
     }
 
     callback("sign") {
-        editMessageText(message.messageId, "请选择", replyMarkup = loginButtonTreeMap.toMarkup("selectIdentity"))
+        editMessageText(message.messageId, text = "请选择", replyMarkup = loginButtonTreeMap.toMarkup("selectIdentity"))
     }
 
     suspend fun GeneralContainer.signSelectType(any: KeyAndIdentityName) {
@@ -356,7 +356,7 @@ class LoginHandler: BotHandler({
         val callbackContainer = this as? CallbackContainer
         if (any.edit) {
             callbackContainer?.let {
-                editMessageText(it.message.messageId, "${button.text}\n身份：${identityName.default()}\n请选择", replyMarkup = markup)
+                editMessageText(it.message.messageId, text = "${button.text}\n身份：${identityName.default()}\n请选择", replyMarkup = markup)
             }
 
         }
@@ -383,7 +383,7 @@ class LoginHandler: BotHandler({
             list.add(callbackButton(it.text, it.key, any))
         }
         list.add(callbackButton("返回", "signSelectType", any))
-        editMessageText(message.messageId, "${button.text}\n身份：${any.identityName.default()}\n请选择", replyMarkup = inlineKeyboard(*list.toTypedArray()))
+        editMessageText(message.messageId, text = "${button.text}\n身份：${any.identityName.default()}\n请选择", replyMarkup = inlineKeyboard(*list.toTypedArray()))
         answerCallbackQuery(query.id, "获取成功")
     }
 
@@ -401,7 +401,7 @@ class LoginHandler: BotHandler({
        var photoMessage: Message?
        client.get(qrcode.image).body<ByteArray>().let {
            photoMessage = sendPhoto(ByteArrayContent(it))
-           editMessageText(message.messageId, "请使用百度app扫描以下二维码登陆，百度网盘等均可")
+           editMessageText(message.messageId, text = "请使用百度app扫描以下二维码登陆，百度网盘等均可")
        }
        var i = 0
        try {
@@ -420,7 +420,7 @@ class LoginHandler: BotHandler({
                            it[cookie]= newEntity.cookie
                        }
                    }
-                   editMessageText(message.messageId, "绑定百度成功")
+                   editMessageText(message.messageId, text = "绑定百度成功")
                    sendReturn()
                } catch (_: QrcodeScanException) {}
            }
@@ -434,12 +434,12 @@ class LoginHandler: BotHandler({
         var photoMessage: Message?
         qrcode(qrcode.url).let {
             photoMessage = sendPhoto(ByteArrayContent(it))
-            editMessageText(message.messageId, "请使用哔哩哔哩app扫描以下二维码登陆")
+            editMessageText(message.messageId, text = "请使用哔哩哔哩app扫描以下二维码登陆")
         }
         var i = 0
         while (true) {
             if (++i > 10) {
-                editMessageText(message.messageId, "哔哩哔哩二维码已超时")
+                editMessageText(message.messageId, text = "哔哩哔哩二维码已超时")
                 break
             }
             delay(3000)
@@ -457,7 +457,7 @@ class LoginHandler: BotHandler({
                     it[token] = newEntity.token
                 }
             }
-            editMessageText(message.messageId, "绑定哔哩哔哩成功")
+            editMessageText(message.messageId, text = "绑定哔哩哔哩成功")
             sendReturn()
             break
         }
@@ -470,12 +470,12 @@ class LoginHandler: BotHandler({
         var photoMessage: Message?
         qrcode(imageUrl).let {
             photoMessage = sendPhoto(ByteArrayContent(it))
-            editMessageText(message.messageId, "请使用斗鱼app扫码二维码登录")
+            editMessageText(message.messageId, text = "请使用斗鱼app扫码二维码登录")
         }
         var i = 0
         while (true) {
             if (i++ > 20) {
-                editMessageText(message.messageId, "斗鱼登录二维码已失效")
+                editMessageText(message.messageId, text = "斗鱼登录二维码已失效")
                 break
             }
             delay(3000)
@@ -491,7 +491,7 @@ class LoginHandler: BotHandler({
                     it[cookie] = newEntity.cookie
                 }
             }
-            editMessageText(message.messageId, "绑定斗鱼成功")
+            editMessageText(message.messageId, text = "绑定斗鱼成功")
             sendReturn()
             break
         }
@@ -505,7 +505,7 @@ class LoginHandler: BotHandler({
         val keyAndIdentityName: KeyAndIdentityName
     )
     callback("kuGouLogin") {
-        editMessageText(message.messageId, "请发送酷狗登录的手机号")
+        editMessageText(message.messageId, text = "请发送酷狗登录的手机号")
         next("kuGouLogin1", transferred())
     }
     step("kuGouLogin1", TextMessageContainer::class) {
@@ -534,7 +534,7 @@ class LoginHandler: BotHandler({
     }
 
     callback("miHoYoCookieLogin") {
-        editMessageText(message.messageId, "请发送米哈游cookie")
+        editMessageText(message.messageId, text = "请发送米哈游cookie")
         next("miHoYoCookieLogin1", transferred())
     }
     step("miHoYoCookieLogin1") {
@@ -556,13 +556,13 @@ class LoginHandler: BotHandler({
         var photoMessage: Message?
         qrcode(qrcode.url).let {
             photoMessage = sendPhoto(ByteArrayContent(it))
-            editMessageText(message.messageId, "请使用米游社扫描下面二维码登录")
+            editMessageText(message.messageId, text = "请使用米游社扫描下面二维码登录")
         }
         var i = 0
         try {
             while (true) {
                 if (i++ > 20) {
-                    editMessageText(message.messageId, "米游社二维码已过期")
+                    editMessageText(message.messageId, text = "米游社二维码已过期")
                     break
                 }
                 delay(3000)
@@ -581,7 +581,7 @@ class LoginHandler: BotHandler({
                         it[mid] = miHoYoEntity.mid
                     }
                 }
-                editMessageText(message.messageId, "绑定米哈游成功")
+                editMessageText(message.messageId, text = "绑定米哈游成功")
                 sendReturn()
                 break
             }
@@ -593,7 +593,7 @@ class LoginHandler: BotHandler({
     }
 
     callback("miHoYoAppPasswordLogin") {
-        editMessageText(message.messageId, "请发送米哈游账号")
+        editMessageText(message.messageId, text = "请发送米哈游账号")
         next("miHoYoAppPasswordLogin1", transferred())
     }
     step("miHoYoAppPasswordLogin1") {
@@ -623,7 +623,7 @@ class LoginHandler: BotHandler({
     }
 
     callback("miHoYoWebPasswordLogin") {
-        editMessageText(message.messageId, "请发送米哈游账号")
+        editMessageText(message.messageId, text = "请发送米哈游账号")
         next("miHoYoWebPasswordLogin1", transferred())
     }
     step("miHoYoWebPasswordLogin1") {
@@ -655,7 +655,7 @@ class LoginHandler: BotHandler({
         val photoMessage: Message?
         client.get(qrcode.image).body<ByteArray>().let {
             photoMessage = sendPhoto(ByteArrayContent(it))
-            editMessageText(message.messageId, "使用微博app扫码登陆")
+            editMessageText(message.messageId, text = "使用微博app扫码登陆")
         }
         var i = 0
         var fail = true
@@ -671,7 +671,7 @@ class LoginHandler: BotHandler({
                         it[cookie] = newEntity.cookie
                     }
                 }
-                editMessageText(message.messageId, "绑定微博成功")
+                editMessageText(message.messageId, text = "绑定微博成功")
                 sendReturn()
                 fail = false
                 break
@@ -683,12 +683,12 @@ class LoginHandler: BotHandler({
             deleteMessage(it.messageId)
         }
         if (fail) {
-            editMessageText(message.messageId, "微博二维码已过期")
+            editMessageText(message.messageId, text = "微博二维码已过期")
         }
     }
 
     callback("smZdmCookieLogin") {
-        editMessageText(message.messageId, "请发送什么值得买cookie")
+        editMessageText(message.messageId, text = "请发送什么值得买cookie")
         next("smZdmCookieLogin1", transferred())
     }
     step("smZdmCookieLogin1") {
@@ -704,7 +704,7 @@ class LoginHandler: BotHandler({
     }
 
     callback("nodeSeekCookieLogin") {
-        editMessageText(message.messageId, "请发送NodeSeek的cookie")
+        editMessageText(message.messageId, text = "请发送NodeSeek的cookie")
         next("nodeSeekCookieLogin1", transferred())
     }
     step("nodeSeekCookieLogin1") {
@@ -723,7 +723,7 @@ class LoginHandler: BotHandler({
     }
 
     callback("eCloudPasswordLogin") {
-        editMessageText(message.messageId, "请发送天翼云盘账号")
+        editMessageText(message.messageId, text = "请发送天翼云盘账号")
         next("eCloudPasswordLogin1", transferred())
     }
     step("eCloudPasswordLogin1") {
@@ -749,7 +749,7 @@ class LoginHandler: BotHandler({
     }
 
     callback("hostLocPasswordLogin") {
-        editMessageText(message.messageId, "请发送HostLoc账号")
+        editMessageText(message.messageId, text = "请发送HostLoc账号")
         next("hostLocPasswordLogin1", transferred())
     }
     step("hostLocPasswordLogin1") {
@@ -774,7 +774,7 @@ class LoginHandler: BotHandler({
     }
 
     callback("hostLocCookieLogin") {
-        editMessageText(message.messageId, "请发送HostLoc的cookie")
+        editMessageText(message.messageId, text = "请发送HostLoc的cookie")
         next("hostLocCookieLogin1", transferred())
     }
     step("hostLocCookieLogin1") {
@@ -794,12 +794,12 @@ class LoginHandler: BotHandler({
         val photoMessage: Message?
         client.get(qrcode.url).body<ByteArray>().let {
             photoMessage = sendPhoto(ByteArrayContent(it))
-            editMessageText(message.messageId, "请使用虎牙App扫描二维码登录")
+            editMessageText(message.messageId, text = "请使用虎牙App扫描二维码登录")
         }
         var i = 0
         while (true) {
             if (i++ > 20) {
-                editMessageText(message.messageId, "虎牙登录二维码已过期")
+                editMessageText(message.messageId, text = "虎牙登录二维码已过期")
                 break
             }
             delay(3000)
@@ -815,7 +815,7 @@ class LoginHandler: BotHandler({
                     it[cookie] = newEntity.cookie
                 }
             }
-            editMessageText(message.messageId, "绑定虎牙成功")
+            editMessageText(message.messageId, text = "绑定虎牙成功")
             sendReturn()
             break
         }
@@ -825,7 +825,7 @@ class LoginHandler: BotHandler({
     }
 
     callback("xiaomiStepLogin") {
-        editMessageText(message.messageId, "请发送小米运动账号")
+        editMessageText(message.messageId, text = "请发送小米运动账号")
         next("xiaomiStepLogin1", transferred())
     }
     step("xiaomiStepLogin1") {
@@ -850,7 +850,7 @@ class LoginHandler: BotHandler({
     }
 
     callback("leXinStepLogin") {
-        editMessageText(message.messageId, "请发送乐心运动账号")
+        editMessageText(message.messageId, text = "请发送乐心运动账号")
         next("leXinStepLogin1", transferred())
     }
     step("leXinStepLogin1") {
@@ -878,7 +878,7 @@ class LoginHandler: BotHandler({
 
 
     callback("nodeLocCookieLogin") {
-        editMessageText(message.messageId, "请发送NodeLoc的cookie")
+        editMessageText(message.messageId, text = "请发送NodeLoc的cookie")
         next("nodeLocCookieLogin1", transferred())
     }
     step("nodeLocCookieLogin1") {
@@ -986,7 +986,7 @@ class ManagerHandler: BotHandler({
 
         val list = managerMarkup(any, chatId, fromId)
 
-        editMessageText(message.messageId, "${text}管理\n身份：${identityName.default()}", replyMarkup = InlineKeyboardMarkup(list))
+        editMessageText(message.messageId, text = "${text}管理\n身份：${identityName.default()}", replyMarkup = InlineKeyboardMarkup(list))
     }
 
     callback("signManagerExecute") {
@@ -1011,7 +1011,7 @@ class ManagerHandler: BotHandler({
 
         val list = managerMarkup(any, chatId, fromId)
 
-        editMessageText(message.messageId, "${signData.text}管理", replyMarkup = InlineKeyboardMarkup(list))
+        editMessageText(message.messageId, text = "${signData.text}管理", replyMarkup = InlineKeyboardMarkup(list))
 
     }
 
@@ -1028,11 +1028,11 @@ class ManagerHandler: BotHandler({
             entity.sign = !entity.sign
         }
         val list = managerMarkup(any, chatId, fromId)
-        editMessageText(message.messageId, "${signData.text}管理", replyMarkup = InlineKeyboardMarkup(list))
+        editMessageText(message.messageId, text = "${signData.text}管理", replyMarkup = InlineKeyboardMarkup(list))
     }
 
     callback("StepManagerStep") {
-        editMessageText(message.messageId, "请发送需要定时修改的步数")
+        editMessageText(message.messageId, text = "请发送需要定时修改的步数")
         next("StepManagerStep1", transferred<ManagerTransferData>())
     }
     step("StepManagerStep1") {
@@ -1058,7 +1058,7 @@ class DeleteHandler: BotHandler({
         val any = transferred<KeyAndIdentityName>()
         val signData = loginButtonTreeMap[any.key]!!
         val text = signData.text
-        editMessageText(message.messageId, "确认要删除${text}吗？", replyMarkup = inlineKeyboard(
+        editMessageText(message.messageId, text = "确认要删除${text}吗？", replyMarkup = inlineKeyboard(
             callbackButton("是", "signDelete0", any),
             callbackButton("否", "signSelectType", any)
         ))
@@ -1072,7 +1072,7 @@ class DeleteHandler: BotHandler({
         suspendTransaction {
             table.deleteWhere { managerData.whereColumn eq fromId.toString() and (managerData.whereColumn0 eq any.identityName) }
         }
-        editMessageText(message.messageId, "删除${text}成功", replyMarkup = inlineKeyboard(
+        editMessageText(message.messageId, text = "删除${text}成功", replyMarkup = inlineKeyboard(
             callbackButton("返回", "signSelectType", any)
         ))
     }
@@ -1102,7 +1102,7 @@ class ExecuteHandler: BotHandler({
             list.add(listOf(callbackButton(it.text, "signExecute0", ManagerTransferData(any, it.text))))
         }
         list.add(listOf(callbackButton("返回", "signSelectType", any)))
-        editMessageText(message.messageId, "${text}执行\n身份：${any.identityName.default()}", replyMarkup = InlineKeyboardMarkup(list))
+        editMessageText(message.messageId, text = "${text}执行\n身份：${any.identityName.default()}", replyMarkup = InlineKeyboardMarkup(list))
         answerCallbackQuery(query.id, "获取成功")
     }
 
@@ -1117,10 +1117,10 @@ class ExecuteHandler: BotHandler({
         val singleButton = button.find { it.text == data.buttonText }!!
         val sendText = singleButton.sendText
         if (sendText != null) {
-            editMessageText(message.messageId, sendText)
+            editMessageText(message.messageId, text = sendText)
             return@callback next("signExecute1", data)
         }
-        editMessageText(message.messageId, "${singleButton.text}执行中，请稍后...")
+        editMessageText(message.messageId, text = "${singleButton.text}执行中，请稍后...")
         val exec = singleButton.exec
         val queryEntity = suspendTransaction {
             entity.find { managerData.whereColumn eq fromId.toString() and (managerData.whereColumn0 eq any.identityName) }.first()
@@ -1129,15 +1129,15 @@ class ExecuteHandler: BotHandler({
         try {
             val execResult = exec(queryEntity, null)
             if (execResult is String) {
-                editMessageText(message.messageId, execResult, replyMarkup = returnButton)
+                editMessageText(message.messageId, text = execResult, replyMarkup = returnButton)
             } else {
-                editMessageText(message.messageId, "${singleButton.text}执行成功", replyMarkup = returnButton)
+                editMessageText(message.messageId, text = "${singleButton.text}执行成功", replyMarkup = returnButton)
             }
         } catch (e: Exception) {
             if (e !is IllegalStateException) {
                 e.printStackTrace()
             }
-            editMessageText(message.messageId, "${singleButton.text}执行失败，异常信息：${e.message}", replyMarkup = returnButton)
+            editMessageText(message.messageId, text = "${singleButton.text}执行失败，异常信息：${e.message}", replyMarkup = returnButton)
         }
     }
 

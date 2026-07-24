@@ -19,7 +19,6 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import me.kuku.common.ktor.client
 import me.kuku.common.logic.AnthropicLogic
-import me.kuku.common.logic.GeminiLogic
 import me.kuku.common.logic.GrokLogic
 import me.kuku.common.logic.OpenaiLogic
 import me.kuku.onebot.config.ROneBot
@@ -115,7 +114,6 @@ class OpenAiCommand: ROneBot {
             val sendText = when (ai) {
                 "openai" -> OpenaiLogic.openai("group:${message.groupId}:${message.userId}", text = text, photoList = photoList, systemMsg)
                 "claude" -> AnthropicLogic.claude("group:${message.groupId}:${message.userId}", text, photoList, systemMsg)
-                "gemini" -> GeminiLogic.gemini("group:${message.groupId}:${message.userId}", text = text, photoList = photoList, systemMessage = systemMsg).text
                 else -> error("not support ai")
             }
             val cleanedText = sendText

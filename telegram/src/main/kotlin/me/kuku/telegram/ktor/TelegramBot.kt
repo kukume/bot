@@ -8,6 +8,10 @@ import io.github.dehuckakpyt.telegrambot.model.telegram.Chat
 import io.github.dehuckakpyt.telegrambot.plugin.TelegramBot
 import io.github.dehuckakpyt.telegrambot.source.callback.CallbackContentSource
 import io.github.dehuckakpyt.telegrambot.source.chain.ChainSource
+import io.github.dehuckakpyt.telegrambot.source.chat.TelegramChatSource
+import io.github.dehuckakpyt.telegrambot.source.chat.event.TelegramChatStatusEventSource
+import io.github.dehuckakpyt.telegrambot.source.message.TelegramMessageSource
+import io.github.dehuckakpyt.telegrambot.source.user.TelegramUserSource
 import io.github.dehuckakpyt.telegrambot.template.MessageTemplate
 import io.github.dehuckakpyt.telegrambot.template.Templater
 import io.ktor.client.plugins.*
@@ -23,7 +27,11 @@ fun Application.telegramBot() {
             }
             chainSource = { ChainSource.inDatabase }
             exceptionHandler = { OwnExceptionHandler(telegramBot, receiving.messageTemplate, templater) }
+            telegramUserSource = { TelegramUserSource.inDatabase }
+            telegramChatSource = { TelegramChatSource.inDatabase }
+            telegramChatStatusEventSource = { TelegramChatStatusEventSource.inDatabase }
         }
+        telegramMessageSource = { TelegramMessageSource.inDatabase }
         client {
             defaultRequest {
                 System.getenv("TELEGRAM_API")?.takeIf { it.isNotEmpty() }?.let {

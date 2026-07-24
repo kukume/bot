@@ -73,8 +73,12 @@ class SignLogHandler(
                 if (messageId == null) {
                     bot.sendMessage(chatId, text, replyMarkup = inlineKeyboard(*buttonList.toTypedArray()))
                 } else {
-                    bot.editMessageText(chatId, messageId, text,
-                        replyMarkup =  inlineKeyboard(*buttonList.toTypedArray()))
+                    bot.editMessageText(
+                        chatId,
+                        messageId,
+                        text = text,
+                        replyMarkup = inlineKeyboard(*buttonList.toTypedArray())
+                    )
                 }
                 return
             }
@@ -88,8 +92,12 @@ class SignLogHandler(
                 replyMarkup = replyMarkup(now, chatId, fromId, identityName, returnButton)
             )
         } else {
-            bot.editMessageText(chatId, messageId, text,
-                replyMarkup = replyMarkup(now, chatId, fromId, identityName, returnButton))
+            bot.editMessageText(
+                chatId,
+                messageId,
+                text = text,
+                replyMarkup = replyMarkup(now, chatId, fromId, identityName, returnButton)
+            )
         }
     }
 
@@ -128,7 +136,7 @@ class SignLogHandler(
                 answerCallbackQuery(query.id, "没有详细信息", true)
             }
         } else {
-            editMessageText(message.messageId, entity.exceptionStack.toString(),
+            editMessageText(message.messageId, text = entity.exceptionStack.toString(),
                 replyMarkup = inlineKeyboard(callbackButton("返回", "signLog", DateAndIdentityName(key, entity.identityName)))
             )
         }

@@ -52,7 +52,7 @@ class LeiGodHandler: BotHandler({
 
 
     callback("leiGodLogin") {
-        editMessageText(message.messageId, "请发送雷神加速器的账号")
+        editMessageText(message.messageId, text = "请发送雷神加速器的账号")
         next("leiGodLogin1")
     }
 
@@ -89,7 +89,7 @@ class LeiGodHandler: BotHandler({
                 entity.status = !entity.status
             }
         }
-        editMessageText(message.messageId, "雷神加速器提醒已切换")
+        editMessageText(message.messageId, text = "雷神加速器提醒已切换")
     }
 
     callback("leiGodSwitch") {
@@ -102,10 +102,10 @@ class LeiGodHandler: BotHandler({
             val pauseStatusId = userInfo.pauseStatusId
             if (pauseStatusId == 1) {
                 LeiShenLogic.recover(entity)
-                editMessageText(message.messageId, "雷神加速器已恢复时间")
+                editMessageText(message.messageId, text = "雷神加速器已恢复时间")
             } else {
                 LeiShenLogic.pause(entity)
-                editMessageText(message.messageId, "雷神加速器已暂停时间")
+                editMessageText(message.messageId, text = "雷神加速器已暂停时间")
             }
         }
     }
@@ -117,7 +117,7 @@ class LeiGodHandler: BotHandler({
         if (entity == null) answerCallbackQuery(query.id, "未绑定雷神加速器", true)
         else {
             LeiShenLogic.pause(entity)
-            editMessageText(message.messageId, "雷神加速器已暂停时间")
+            editMessageText(message.messageId, text = "雷神加速器已暂停时间")
         }
     }
 
@@ -127,7 +127,7 @@ class LeiGodHandler: BotHandler({
                 identityId eq fromId.toString()
             }
         }
-        editMessageText(message.messageId, "雷神加速器删除成功")
+        editMessageText(message.messageId, text = "雷神加速器删除成功")
     }
 
 
