@@ -5,6 +5,19 @@ on:
     branches: [master, main]
     tags:
       - 'v*'
+    paths:
+      - 'Dockerfile'
+      - 'gradle/**'
+      - 'gradlew'
+      - 'gradle.properties'
+      - 'settings.gradle.kts'
+      - 'build.gradle.kts'
+      - 'logic/**'
+      - 'onebot/**'
+      - 'qq/**'
+      - 'telegram/**'
+      - 'jmcomic.yml'
+      - '.github/workflows/docker-build.yml'
   workflow_dispatch:
 
 env:
