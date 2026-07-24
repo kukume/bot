@@ -27,3 +27,7 @@ tasks.shadowJar {
     archiveFileName.set("onebot.jar")
     mergeServiceFiles()
 }
+
+koinCompiler {
+    compileSafety = false
+}
