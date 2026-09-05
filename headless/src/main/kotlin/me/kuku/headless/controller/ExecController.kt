@@ -8,19 +8,14 @@ import io.ktor.server.routing.*
 import io.ktor.server.thymeleaf.*
 import io.ktor.server.util.*
 import kotlinx.coroutines.*
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.time.withTimeout
+import me.kuku.common.logic.NetEaseWatchman
 import me.kuku.headless.utils.PlaywrightUtils
 import me.kuku.headless.utils.newPage
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.time.Duration
-import java.util.UUID
-import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
-
-private val mutex = Mutex()
 
 fun Application.exec() {
 
@@ -119,27 +114,9 @@ fun Application.exec() {
             }
 
             post("netEase/checkToken") {
-                mutex.withLock {
-                    val page = PlaywrightUtils.browser().newPage()
-                    try {
-                        withTimeout(Duration.ofSeconds(30)) {
-                            val uuid = UUID.randomUUID().toString().replace("-", "")
-                            page.navigate("http://localhost:$port/exec/netEaseMusic?uuid=$uuid")
-                            var i = 0
-                            while (true) {
-                                if (i++ > 30) error("check token api timeout")
-                                val token = page.evaluate("""document.getElementById('checkToken').innerHTML""").toString()
-                                if (token.isEmpty()) {
-                                    delay(500.milliseconds)
-                                    continue
-                                }
-                                call.respond(mapOf("checkToken" to token))
-                                break
-                            }
-                        }
-                    } finally {
-                        page.context().browser().close()
-                    }
+                withContext(Dispatchers.IO) {
+                    val token = NetEaseWatchman.checkToken()
+                    call.respond(mapOf("checkToken" to token))
                 }
             }
         }
