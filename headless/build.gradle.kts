@@ -17,6 +17,7 @@ dependencies {
     implementation(libs.okhttp)
 
     implementation(libs.playwright)
+    implementation(project(":logic"))
 }
 
 application {
